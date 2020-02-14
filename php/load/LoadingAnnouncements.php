@@ -8,7 +8,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
 
-    if (count($search) > 0 && $search != null) {
+    if (count($search) > 0 && $search != null && $idAnnouncement == 0) {
+        $lastAnnouncement = getRow($connect, 'idAnnouncement', "SELECT max(idAnnouncement) AS idAnnouncement FROM announcements");
+
         $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
         costToBYN, costToUSD, costToEUR, address, placementDate, countRent, rating, photoPath, 
         IFNULL(favoriteAnnouncements.isFavorite, '0') AS 'isFavorite'        
@@ -17,9 +19,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             AND (announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement))
         INNER JOIN subcategories ON announcements.idSubcategory = subcategories.idSubcategory 
         INNER JOIN categories ON subcategories.idCategory = categories.idCategory 
-        WHERE (announcements.name LIKE '%$search%') 
-        OR (subcategories.name LIKE '%$search%') 
-        OR (categories.name LIKE '%$search%') ";
+        WHERE (UPPER(announcements.name) LIKE '%$search%') 
+        OR (UPPER(subcategories.name) LIKE '%$search%') 
+        OR (UPPER(categories.name) LIKE '%$search%')
+        AND announcements.idAnnouncement <= '$lastAnnouncement'
+        ORDER BY announcements.idAnnouncement DESC
+        LIMIT 15";
+    } else if (count($search) > 0 && $search != null && $idAnnouncement > 0) {
+        $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
+        costToBYN, costToUSD, costToEUR, address, placementDate, countRent, rating, photoPath, 
+        IFNULL(favoriteAnnouncements.isFavorite, '0') AS 'isFavorite'        
+        FROM announcements 
+        LEFT JOIN favoriteAnnouncements ON (('$idUser' = favoriteAnnouncements.idUser) 
+            AND (announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement))
+        INNER JOIN subcategories ON announcements.idSubcategory = subcategories.idSubcategory 
+        INNER JOIN categories ON subcategories.idCategory = categories.idCategory 
+        WHERE (UPPER(announcements.name) LIKE '%$search%') 
+        OR (UPPER(subcategories.name) LIKE '%$search%') 
+        OR (UPPER(categories.name) LIKE '%$search%')
+        AND announcements.idAnnouncement < '$idAnnouncement'
+        ORDER BY announcements.idAnnouncement DESC
+        LIMIT 15";
+    } else if ($idAnnouncement == 0) {
+        $lastAnnouncement = getRow($connect, 'idAnnouncement', "SELECT max(idAnnouncement) AS idAnnouncement FROM announcements");
+
+        $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
+        costToBYN, costToUSD, costToEUR, address, placementDate, countRent, rating, photoPath, 
+        IFNULL(favoriteAnnouncements.isFavorite, '0') AS 'isFavorite'
+        FROM announcements
+        LEFT JOIN favoriteAnnouncements ON (('$idUser' = favoriteAnnouncements.idUser)
+            AND (announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement))
+        WHERE announcements.idAnnouncement <= '$lastAnnouncement'
+        ORDER BY announcements.idAnnouncement DESC
+        LIMIT 15";
     } else {
         $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
         costToBYN, costToUSD, costToEUR, address, placementDate, countRent, rating, photoPath, 
@@ -27,7 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         FROM announcements
         LEFT JOIN favoriteAnnouncements ON (('$idUser' = favoriteAnnouncements.idUser) 
             AND (announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement))
-        WHERE announcements.idAnnouncement > '$idAnnouncement'";
+        WHERE announcements.idAnnouncement < '$idAnnouncement'
+        ORDER BY announcements.idAnnouncement DESC
+        LIMIT 15";
     }
 
     $result['announcements'] = array();

@@ -16,11 +16,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         INNER JOIN categories ON subcategories.idCategory = categories.idCategory 
         WHERE ((announcements.name LIKE '%$search%') 
         OR (subcategories.name LIKE '%$search%') 
-        OR (categories.name LIKE '%$search%')) AND idUser = '$idUser'";
+        OR (categories.name LIKE '%$search%')) AND idUser = '$idUser'
+        ORDER BY announcements.idAnnouncement DESC
+        LIMIT 10";
+    } else if ($idAnnouncement == 0) {
+        $lastAnnouncement = getRow($connect, 'idAnnouncement', "SELECT max(idAnnouncement) AS idAnnouncement FROM announcements");
+
+        $loadAnnouncements = "SELECT idAnnouncement, idUser, name, costToBYN, costToUSD, costToEUR, 
+        address, placementDate, countRent, countViewers, countFavorites, rating, photoPath 
+        FROM announcements 
+        WHERE announcements.idAnnouncement <= '$lastAnnouncement' AND idUser = '$idUser'
+        ORDER BY announcements.idAnnouncement DESC
+        LIMIT 10";
     } else {
         $loadAnnouncements = "SELECT idAnnouncement, idUser, name, costToBYN, costToUSD, costToEUR, 
         address, placementDate, countRent, countViewers, countFavorites, rating, photoPath 
-        FROM announcements WHERE idAnnouncement > '$idAnnouncement' AND idUser = '$idUser'";
+        FROM announcements 
+        WHERE announcements.idAnnouncement < '$idAnnouncement' AND idUser = '$idUser'
+        ORDER BY announcements.idAnnouncement DESC
+        LIMIT 10";
     }
 
     $result['announcements'] = array();
@@ -29,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $response = mysqli_query($connect, $loadAnnouncements);
         $rows = mysqli_num_rows($response);
         if ($rows > 0) {
-            while ($row = mysqli_fetch_assoc($response)) {            
+            while ($row = mysqli_fetch_assoc($response)) {
                 array_push($result['announcements'], $row);
             }
 

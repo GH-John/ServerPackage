@@ -171,7 +171,7 @@ VALUES
 	(8, "Спорт и активный отдых"),
 	(9, "Хобби"),
 	(10, "Красота и здоровье"),
-	(11, "Животные"),	
+	(11, "Животные"),
 	(12, "Другое");
 
 INSERT INTO
@@ -180,7 +180,7 @@ VALUES
 	(1, 1, "Квартиры"),
 	(2, 1, "Дома"),
 	(3, 1, "Комнаты"),
-	(4, 1, "Койко-место"),
+	(4, 1, "Койко-место"),  
 	(5, 1, "Офисы"),
 	(6, 1, "Коммерческая недвижимость"),
 	(7, 1, "Гаражи"),
@@ -367,3 +367,107 @@ VALUES
 	(179, 11, "Насекомые"),
 	(180, 11, "Зоотовары"),
 	(181, 11, "Собаки");
+    
+
+INSERT INTO announcements(idUser, idSubcategory, name, description, photoPath, costToBYN, costToUSD, costToEUR, profit,
+	address, phone_1, isVisible_phone_1, phone_2, isVisible_phone_2, phone_3, isVisible_phone_3, statusControl, statusRent, 
+    countRent, countViewers, countFavorites, rating, placementDate, lifeCicle) VALUES
+    (1, 1, "name 1", "desc 1", "https://images.unsplash.com/photo-1458668383970-8ddd3927deed?ixlib=rb-1.2.1&auto=format&fit=crop&w=747&q=80", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 2", "desc 2", "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 3", "desc 3", "https://images.unsplash.com/photo-1473654729523-203e25dfda10?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 4", "desc 4", "https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEwMjc5NH0&auto=format&fit=crop&w=667&q=80", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 5", "desc 5", "https://images.unsplash.com/photo-1505312238910-67e64a4ec582?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 6", "desc 6", "https://images.unsplash.com/photo-1570997851094-5605b0917494?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 7", "desc 7", "https://images.unsplash.com/photo-1444076784383-69ff7bae1b0a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 8", "desc 8", "https://images.unsplash.com/photo-1495580847032-db0bac41d44b?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 9", "desc 9", "https://images.unsplash.com/photo-1461301214746-1e109215d6d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 10", "desc 10", "https://images.unsplash.com/photo-1503197979108-c824168d51a8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMjU4fQ&auto=format&fit=crop&w=500&q=60", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 11", "desc 11", "https://images.unsplash.com/photo-1441794016917-7b6933969960?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMDk0fQ&auto=format&fit=crop&w=500&q=60", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 12", "desc 12", "https://images.unsplash.com/photo-1496347646636-ea47f7d6b37b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 13", "desc 13", "https://images.unsplash.com/photo-1437750769465-301382cdf094?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 14", "desc 14", "https://images.unsplash.com/photo-1462733441571-9312d0b53818?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 15", "desc 15", "https://images.unsplash.com/photo-1460400408855-36abd76648b9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 16", "desc 16", "https://images.unsplash.com/photo-1572357280636-1a2c2c26acdc?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 17", "desc 17", "https://images.unsplash.com/photo-1546552916-985b466ffbec?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 18", "desc 18", "https://images.unsplash.com/photo-1524222835726-8e7d453fa83c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 19", "desc 19", "https://images.unsplash.com/photo-1543362906-acfc16c67564?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now()),
+    (1, 1, "name 20", "desc 20", "https://images.unsplash.com/photo-1550411294-b3b1bd5fce1b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", 
+    4.3, 2.2, 2.5, 0, "address 1", 
+    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
+    "moderation", false, 0, 0, 0, 0, now(), now());
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
