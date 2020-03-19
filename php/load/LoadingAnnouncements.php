@@ -4,11 +4,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $token = filter_var(trim($_POST['token']), FILTER_SANITIZE_STRING);
     $idAnnouncement = filter_var(trim($_POST['idAnnouncement']), FILTER_SANITIZE_STRING);
-    $search = filter_var(trim($_POST['search']), FILTER_SANITIZE_STRING);
+    $searchQuery = filter_var(trim($_POST['search']), FILTER_SANITIZE_STRING);
+    $limitItemInPage = filter_var(trim($_POST['limitItemInPage']), FILTER_SANITIZE_STRING);
+
+    if ($limitItemInPage == 0)
+        $limitItemInPage = 10;
 
     $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
 
-    if (count($search) > 0 && $search != null && $idAnnouncement == 0) {
+    if (count($searchQuery) > 0 && $searchQuery != null && $idAnnouncement == 0) {
         $lastAnnouncement = getRow($connect, 'idAnnouncement', "SELECT max(idAnnouncement) AS idAnnouncement FROM announcements");
 
         $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
@@ -19,13 +23,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             AND (announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement))
         INNER JOIN subcategories ON announcements.idSubcategory = subcategories.idSubcategory 
         INNER JOIN categories ON subcategories.idCategory = categories.idCategory 
-        WHERE (UPPER(announcements.name) LIKE '%$search%') 
-        OR (UPPER(subcategories.name) LIKE '%$search%') 
-        OR (UPPER(categories.name) LIKE '%$search%')
+        WHERE (UPPER(announcements.name) LIKE '%$searchQuery%') 
+        OR (UPPER(subcategories.name) LIKE '%$searchQuery%') 
+        OR (UPPER(categories.name) LIKE '%$searchQuery%')
         AND announcements.idAnnouncement <= '$lastAnnouncement'
         ORDER BY announcements.idAnnouncement DESC
-        LIMIT 15";
-    } else if (count($search) > 0 && $search != null && $idAnnouncement > 0) {
+        LIMIT $limitItemInPage";
+    } else if (count($searchQuery) > 0 && $searchQuery != null && $idAnnouncement > 0) {
         $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
         costToBYN, costToUSD, costToEUR, address, placementDate, countRent, rating, photoPath, 
         IFNULL(favoriteAnnouncements.isFavorite, '0') AS 'isFavorite'        
@@ -34,12 +38,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             AND (announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement))
         INNER JOIN subcategories ON announcements.idSubcategory = subcategories.idSubcategory 
         INNER JOIN categories ON subcategories.idCategory = categories.idCategory 
-        WHERE (UPPER(announcements.name) LIKE '%$search%') 
-        OR (UPPER(subcategories.name) LIKE '%$search%') 
-        OR (UPPER(categories.name) LIKE '%$search%')
+        WHERE (UPPER(announcements.name) LIKE '%$searchQuery%') 
+        OR (UPPER(subcategories.name) LIKE '%$searchQuery%') 
+        OR (UPPER(categories.name) LIKE '%$searchQuery%')
         AND announcements.idAnnouncement < '$idAnnouncement'
         ORDER BY announcements.idAnnouncement DESC
-        LIMIT 15";
+        LIMIT $limitItemInPage";
     } else if ($idAnnouncement == 0) {
         $lastAnnouncement = getRow($connect, 'idAnnouncement', "SELECT max(idAnnouncement) AS idAnnouncement FROM announcements");
 
@@ -51,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             AND (announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement))
         WHERE announcements.idAnnouncement <= '$lastAnnouncement'
         ORDER BY announcements.idAnnouncement DESC
-        LIMIT 15";
+        LIMIT $limitItemInPage";
     } else {
         $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
         costToBYN, costToUSD, costToEUR, address, placementDate, countRent, rating, photoPath, 
@@ -61,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             AND (announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement))
         WHERE announcements.idAnnouncement < '$idAnnouncement'
         ORDER BY announcements.idAnnouncement DESC
-        LIMIT 15";
+        LIMIT $limitItemInPage";
     }
 
     $result['announcements'] = array();
