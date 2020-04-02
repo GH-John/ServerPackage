@@ -17,7 +17,7 @@ CREATE TABLE subcategories(
 );
 
 CREATE TABLE users(
-	idUser INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+	idUser BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     token VARCHAR(70) NOT NULL,
 	
     name VARCHAR(20) NOT NULL,
@@ -34,8 +34,8 @@ CREATE TABLE users(
 	phone_2 VARCHAR(25),
     phone_3 VARCHAR(25),
     
-	accountType VARCHAR(20) NOT NULL DEFAULT "person",
-	balance INT NOT NULL DEFAULT 0,
+	accountType VARCHAR(20) NOT NULL DEFAULT "private_person",
+	balance FLOAT NOT NULL DEFAULT 0.0,
 	rating FLOAT NOT NULL DEFAULT 0.0,
 	statusConfirmationEmail BOOL NOT NULL DEFAULT FALSE
 );
@@ -43,8 +43,8 @@ CREATE TABLE users(
 CREATE UNIQUE INDEX email ON users(email, password);
 
 CREATE TABLE announcements(
-	idAnnouncement INT PRIMARY KEY AUTO_INCREMENT,
-	idUser INT NOT NULL,
+	idAnnouncement BIGINT PRIMARY KEY AUTO_INCREMENT,
+	idUser BIGINT NOT NULL,
 	FOREIGN KEY (idUser) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
 	idSubcategory INT NOT NULL,
 	FOREIGN KEY (idSubcategory) REFERENCES subcategories(idSubcategory) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -83,10 +83,10 @@ CREATE TABLE announcements(
 );
 
 CREATE TABLE reviews(
-	idReview INT PRIMARY KEY AUTO_INCREMENT,
-    idUser INT NOT NULL,
+	idReview BIGINT PRIMARY KEY AUTO_INCREMENT,
+    idUser BIGINT NOT NULL,
     FOREIGN KEY (idUser) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
-    idAnnouncement INT NOT NULL,
+    idAnnouncement BIGINT NOT NULL,
 	FOREIGN KEY (idAnnouncement) REFERENCES announcements(idAnnouncement) ON UPDATE CASCADE ON DELETE CASCADE,
     
     rating INT NOT NULL DEFAULT 0,
@@ -96,17 +96,17 @@ CREATE TABLE reviews(
 DELIMITER //
 create trigger event_after_add_reviews after insert on reviews for each row
 	begin
-		declare nof int;
+		declare nof BIGINT;
         set nof = new.idAnnouncement;	
 		update announcements set announcements.rating = (select avg(rating) from reviews) where announcements.idAnnouncement = nof;
 	end //
 DELIMITER ;
 
 CREATE TABLE rent(
-	idRent INT PRIMARY KEY AUTO_INCREMENT,
-	idUser INT NOT NULL,
+	idRent BIGINT PRIMARY KEY AUTO_INCREMENT,
+	idUser BIGINT NOT NULL,
 	FOREIGN KEY (idUser) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
-	idAnnouncement INT NOT NULL,
+	idAnnouncement BIGINT NOT NULL,
 	FOREIGN KEY (idAnnouncement) REFERENCES announcements(idAnnouncement) ON UPDATE CASCADE ON DELETE CASCADE,
 	
     rentalStart DATETIME NOT NULL,
@@ -116,7 +116,7 @@ CREATE TABLE rent(
 DELIMITER //
 create trigger event_after_add_rent after insert on rent for each row
 	begin
-		declare nof int;
+		declare nof BIGINT;
         set nof = new.idAnnouncement;
 		update announcements set countRent = countRent + 1 where idAnnouncement = nof;
 		update announcements set statusRent = true where idAnnouncement = nof;
@@ -124,18 +124,18 @@ create trigger event_after_add_rent after insert on rent for each row
 DELIMITER ;
 
 CREATE TABLE photo(
-	idPhoto INT PRIMARY KEY AUTO_INCREMENT,
-	idAnnouncement INT NOT NULL,
+	idPhoto BIGINT PRIMARY KEY AUTO_INCREMENT,
+	idAnnouncement BIGINT NOT NULL,
 	FOREIGN KEY (idAnnouncement) REFERENCES announcements(idAnnouncement) ON UPDATE CASCADE ON DELETE CASCADE,
 	
     photoPath VARCHAR(300) NOT NULL
 );
 
 CREATE TABLE favoriteAnnouncements(
-	idFavorite INT PRIMARY KEY AUTO_INCREMENT,
-	idUser INT NOT NULL,
+	idFavorite BIGINT PRIMARY KEY AUTO_INCREMENT,
+	idUser BIGINT NOT NULL,
 	FOREIGN KEY (idUser) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
-	idAnnouncement INT NOT NULL,
+	idAnnouncement BIGINT NOT NULL,
 	FOREIGN KEY (idAnnouncement) REFERENCES announcements(idAnnouncement) ON UPDATE CASCADE ON DELETE CASCADE,
     isFavorite BOOL NOT NULL DEFAULT TRUE
 );
@@ -143,7 +143,7 @@ CREATE TABLE favoriteAnnouncements(
 DELIMITER //
 create trigger event_after_add_favoriteAnnouncements after insert on favoriteAnnouncements for each row
 	begin
-		declare nof int;
+		declare nof BIGINT;
         set nof = new.idAnnouncement;
 		update announcements set countFavorites = countFavorites + 1 where idAnnouncement = nof;
 	end //
@@ -152,7 +152,7 @@ DELIMITER ;
 DELIMITER //
 create trigger event_after_delete_favoriteAnnouncements after delete on favoriteAnnouncements for each row
 	begin
-		declare nof int;
+		declare nof BIGINT;
         set nof = old.idAnnouncement;
 		update announcements set countFavorites = countFavorites - 1 where idAnnouncement = nof;
 	end //
