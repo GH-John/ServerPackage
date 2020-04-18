@@ -2,7 +2,7 @@
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     require_once '../Utils.php';
 
-    $loadCategory = "SELECT idCategory, name FROM categories";
+    $loadCategory = "SELECT idCategory, name, iconUri FROM categories";
     $response = mysqli_query($connect, $loadCategory);
 
     $result['categories'] = array();
@@ -13,16 +13,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 array_push($result['categories'], $row);
             }
 
-            $result['code'] = "1";
-            $result['message'] = "SUCCESS: Categories loaded";
+            $result['response'] = "SUCCESS_CATEGORIES_LOADED";
         } else {
-            $result['code'] = "2";
-            $result['message'] = "ERROR: Load categories";
+            $result['response'] = "UNSUCCESS_CATEGORIES_LOADED";
         }
     } else {
-        $result["code"] = "101";
-        $result["message"] = "ERROR: Could not connect to DB";
+        $result['response'] = "NOT_CONNECT_TO_DB";
     }
+
+    $result['mysqli_error'] = mysqli_error($connect);
+
     echo json_encode($result);
     mysqli_close($connect);
 }

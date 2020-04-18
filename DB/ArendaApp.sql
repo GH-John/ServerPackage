@@ -3,9 +3,12 @@ CREATE DATABASE ArendaApp;
 
 USE ArendaApp;
 
+#RENAME TABLE photo to pictures;
+
 CREATE TABLE categories(
 	idCategory INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(50) NOT NULL
+    name VARCHAR(50) NOT NULL,
+    iconUri VARCHAR(300) NOT NULL
 );
 
 CREATE TABLE subcategories(
@@ -20,21 +23,24 @@ CREATE TABLE users(
 	idUser BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     token VARCHAR(70) NOT NULL,
 	
-    name VARCHAR(20) NOT NULL,
-	lastName VARCHAR(30) NOT NULL,
-	email VARCHAR(60) NOT NULL,
+    name VARCHAR(60) NOT NULL,
+	lastName VARCHAR(60) NOT NULL,
+    
+	login VARCHAR(80) NOT NULL,
+	email VARCHAR(100) NOT NULL,
 	password VARCHAR(70) NOT NULL,
-    userPhoto VARCHAR(300),
+    
+    userLogo VARCHAR(300),
     
     address_1 VARCHAR(100),
     address_2 VARCHAR(100),
     address_3 VARCHAR(100),
     
-	phone_1 VARCHAR(25) NOT NULL,
-	phone_2 VARCHAR(25),
-    phone_3 VARCHAR(25),
+	phone_1 VARCHAR(35) NOT NULL,
+	phone_2 VARCHAR(35),
+    phone_3 VARCHAR(35),
     
-	accountType VARCHAR(20) NOT NULL DEFAULT "private_person",
+	accountType VARCHAR(20) NOT NULL DEFAULT "PRIVATE_PERSON",
 	balance FLOAT NOT NULL DEFAULT 0.0,
 	rating FLOAT NOT NULL DEFAULT 0.0,
 	statusConfirmationEmail BOOL NOT NULL DEFAULT FALSE
@@ -52,29 +58,26 @@ CREATE TABLE announcements(
     name VARCHAR(70) NOT NULL,
 	description VARCHAR(4000) NOT NULL,
     
-    photoPath VARCHAR(300) NOT NULL,
-    
 	costToBYN FLOAT NOT NULL DEFAULT 0.0,
 	costToUSD FLOAT NOT NULL DEFAULT 0.0,
 	costToEUR FLOAT NOT NULL DEFAULT 0.0,
+    
     profit FLOAT NOT NULL DEFAULT 0.0,
     
     address VARCHAR(100) NOT NULL,
     
     phone_1 VARCHAR(25),
-    isVisible_phone_1 BOOL NOT NULL DEFAULT FALSE,
     
 	phone_2 VARCHAR(25),
-    isVisible_phone_2 BOOL NOT NULL DEFAULT FALSE,
     
     phone_3 VARCHAR(25),
-    isVisible_phone_3 BOOL NOT NULL DEFAULT FALSE,
     
 	statusControl VARCHAR(20) NOT NULL DEFAULT "moderation",
 	statusRent BOOLEAN NOT NULL DEFAULT FALSE,
     
-    countRent INT NOT NULL DEFAULT 0.0,
+    countRent INT NOT NULL DEFAULT 0,
     countViewers INT NOT NULL DEFAULT 0,
+    countReviews INT NOT NULL DEFAULT 0,
     countFavorites INT NOT NULL DEFAULT 0,
 	rating FLOAT NOT NULL DEFAULT 0.0,
 
@@ -99,6 +102,7 @@ create trigger event_after_add_reviews after insert on reviews for each row
 		declare nof BIGINT;
         set nof = new.idAnnouncement;	
 		update announcements set announcements.rating = (select avg(rating) from reviews) where announcements.idAnnouncement = nof;
+        update announcements set announcements.countReviews = announcements.countReviews + 1 where announcements.idAnnouncement = nof;
 	end //
 DELIMITER ;
 
@@ -123,12 +127,13 @@ create trigger event_after_add_rent after insert on rent for each row
 	end //
 DELIMITER ;
 
-CREATE TABLE photo(
-	idPhoto BIGINT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE pictures(
+	idPicture BIGINT PRIMARY KEY AUTO_INCREMENT,
 	idAnnouncement BIGINT NOT NULL,
 	FOREIGN KEY (idAnnouncement) REFERENCES announcements(idAnnouncement) ON UPDATE CASCADE ON DELETE CASCADE,
 	
-    photoPath VARCHAR(300) NOT NULL
+    picture VARCHAR(300) NOT NULL,
+    isMainPicture BOOL DEFAULT FALSE
 );
 
 CREATE TABLE favoriteAnnouncements(
@@ -161,18 +166,17 @@ DELIMITER ;
 INSERT INTO
 	categories
 VALUES
-	(1, "Недвижимость"),
-	(2, "Транспорт"),
-	(3, "Для детей"),
-	(4, "Электроника"),
-	(5, "Для дома, сада и мероприятий"),
-	(6, "Одежда и аксессуары"),
-	(7, "Инструмент, спецтехника и ремонт"),
-	(8, "Спорт и активный отдых"),
-	(9, "Хобби"),
-	(10, "Красота и здоровье"),
-	(11, "Животные"),
-	(12, "Другое");
+	(1, "Недвижимость", "ic_categories/ic_property.svg"),
+	(2, "Транспорт", "ic_categories/ic_transport.svg"),
+	(3, "Для детей", "ic_categories/ic_child.svg"),
+	(4, "Электроника", "ic_categories/ic_electronics.svg"),
+	(5, "Для дома, сада и мероприятий", "ic_categories/ic_home.svg"),
+	(6, "Одежда и аксессуары", "ic_categories/ic_pack.svg"),
+	(7, "Инструмент, спецтехника и ремонт", "ic_categories/ic_tool.svg"),
+	(8, "Спорт и активный отдых", "ic_categories/ic_none.svg"),
+	(9, "Хобби", "ic_categories/ic_none.svg"),
+	(10, "Красота и здоровье", "ic_categories/ic_none.svg"),
+	(11, "Животные", "ic_categories/test.svg");
 
 INSERT INTO
 	subcategories
@@ -366,94 +370,97 @@ VALUES
 	(178, 11, "Другое"),
 	(179, 11, "Насекомые"),
 	(180, 11, "Зоотовары"),
-	(181, 11, "Собаки");
+	(181, 11, "Собаки"),
     
+    (182, 1, "Другое"),
+    (183, 2, "Другое"),
+    (184, 6, "Другое"),
+    (185, 10, "Другое");
 
-INSERT INTO announcements(idUser, idSubcategory, name, description, photoPath, costToBYN, costToUSD, costToEUR, profit,
-	address, phone_1, isVisible_phone_1, phone_2, isVisible_phone_2, phone_3, isVisible_phone_3, statusControl, statusRent, 
-    countRent, countViewers, countFavorites, rating, placementDate, lifeCicle) VALUES
-    (1, 1, "name 1", "desc 1", "https://images.unsplash.com/photo-1458668383970-8ddd3927deed?ixlib=rb-1.2.1&auto=format&fit=crop&w=747&q=80", 
+INSERT INTO announcements(idUser, idSubcategory, name, description, costToBYN, costToUSD, costToEUR, profit,
+	address, phone_1, phone_2, phone_3, placementDate, lifeCicle) VALUES
+    (1, 1, "name 1", "desc 1", 
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 2", "desc 2", "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 2", "desc 2",
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 3", "desc 3", "https://images.unsplash.com/photo-1473654729523-203e25dfda10?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 3", "desc 3", 
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 4", "desc 4", "https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEwMjc5NH0&auto=format&fit=crop&w=667&q=80", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 4", "desc 4",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 5", "desc 5", "https://images.unsplash.com/photo-1505312238910-67e64a4ec582?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 5", "desc 5",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 6", "desc 6", "https://images.unsplash.com/photo-1570997851094-5605b0917494?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 6", "desc 6",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 7", "desc 7", "https://images.unsplash.com/photo-1444076784383-69ff7bae1b0a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 7", "desc 7",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 8", "desc 8", "https://images.unsplash.com/photo-1495580847032-db0bac41d44b?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 8", "desc 8",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 9", "desc 9", "https://images.unsplash.com/photo-1461301214746-1e109215d6d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 9", "desc 9",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 10", "desc 10", "https://images.unsplash.com/photo-1503197979108-c824168d51a8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMjU4fQ&auto=format&fit=crop&w=500&q=60", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 10", "desc 10",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 11", "desc 11", "https://images.unsplash.com/photo-1441794016917-7b6933969960?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMDk0fQ&auto=format&fit=crop&w=500&q=60", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 11", "desc 11",
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 12", "desc 12", "https://images.unsplash.com/photo-1496347646636-ea47f7d6b37b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 12", "desc 12",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 13", "desc 13", "https://images.unsplash.com/photo-1437750769465-301382cdf094?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 13", "desc 13",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 14", "desc 14", "https://images.unsplash.com/photo-1462733441571-9312d0b53818?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 14", "desc 14",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 15", "desc 15", "https://images.unsplash.com/photo-1460400408855-36abd76648b9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 15", "desc 15",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 16", "desc 16", "https://images.unsplash.com/photo-1572357280636-1a2c2c26acdc?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 16", "desc 16",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 17", "desc 17", "https://images.unsplash.com/photo-1546552916-985b466ffbec?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 17", "desc 17",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 18", "desc 18", "https://images.unsplash.com/photo-1524222835726-8e7d453fa83c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 18", "desc 18",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 19", "desc 19", "https://images.unsplash.com/photo-1543362906-acfc16c67564?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 19", "desc 19",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now()),
-    (1, 1, "name 20", "desc 20", "https://images.unsplash.com/photo-1550411294-b3b1bd5fce1b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", 
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
+    (1, 1, "name 20", "desc 20",  
     4.3, 2.2, 2.5, 0, "address 1", 
-    "+375(29)111-11-11", true, "+375(29)111-11-11", true, "+375(29)111-11-11", true, 
-    "moderation", false, 0, 0, 0, 0, now(), now());
+    "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now());
     
-    
+INSERT INTO pictures(idAnnouncement, picture, isMainPicture) VALUES
+	(21, "https://images.unsplash.com/photo-1458668383970-8ddd3927deed?ixlib=rb-1.2.1&auto=format&fit=crop&w=747&q=80", true),
+	(22, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", true),
+	(23, "https://images.unsplash.com/photo-1473654729523-203e25dfda10?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",  true),
+	(24, "https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEwMjc5NH0&auto=format&fit=crop&w=667&q=80", true),
+	(25, "https://images.unsplash.com/photo-1505312238910-67e64a4ec582?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", true),
+	(26, "https://images.unsplash.com/photo-1444076784383-69ff7bae1b0a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80", true),
+	(27, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", true),
+	(28, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", true),
+	(29, "https://images.unsplash.com/photo-1461301214746-1e109215d6d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80", true),
+	(30, "https://images.unsplash.com/photo-1503197979108-c824168d51a8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMjU4fQ&auto=format&fit=crop&w=500&q=60", true),
+	(31, "https://images.unsplash.com/photo-1441794016917-7b6933969960?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMDk0fQ&auto=format&fit=crop&w=500&q=60", true),
+	(32, "https://images.unsplash.com/photo-1437750769465-301382cdf094?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", true),
+	(33, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", true),
+	(34, "https://images.unsplash.com/photo-1462733441571-9312d0b53818?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
+	(35, "https://images.unsplash.com/photo-1460400408855-36abd76648b9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
+	(36, "https://images.unsplash.com/photo-1572357280636-1a2c2c26acdc?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", true),
+	(37, "https://images.unsplash.com/photo-1546552916-985b466ffbec?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
+	(38, "https://images.unsplash.com/photo-1524222835726-8e7d453fa83c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
+	(39, "https://images.unsplash.com/photo-1543362906-acfc16c67564?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
+	(40, "https://images.unsplash.com/photo-1550411294-b3b1bd5fce1b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true);
     
     
 

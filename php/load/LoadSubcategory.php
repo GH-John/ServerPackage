@@ -1,7 +1,7 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     require_once '../Utils.php';
-    
+
     $idCategory = filter_var(trim($_POST['idCategory']), FILTER_SANITIZE_STRING);
 
     $loadSubcategory = "SELECT subcategories.idSubcategory as idSubcategory, subcategories.name as name 
@@ -18,15 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 array_push($result['subcategories'], $row);
             }
 
-            $result['code'] = "1";
-            $result['message'] = "SUCCESS: Subcategories loaded";
+            $result['response'] = "SUCCESS_SUBCATEGORIES_LOADED";
         } else {
-            $result['code'] = "2";
-            $result['message'] = "ERROR: Load Subcategories";
+            $result['response'] = "UNSUCCESS_SUBCATEGORIES_LOADED";
         }
     } else {
-        $result["code"] = "101";
-        $result["message"] = "ERROR: Could not connect to DB";
+        $result['response'] = "NOT_CONNECT_TO_DB";
     }
     echo json_encode($result);
     mysqli_close($connect);

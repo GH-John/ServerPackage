@@ -16,10 +16,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $lastAnnouncement = getRow($connect, 'idAnnouncement', "SELECT max(idAnnouncement) AS idAnnouncement FROM announcements");
 
         $loadAnnouncements = "SELECT idAnnouncement, idUser, announcements.name, costToBYN, 
-        costToUSD, costToEUR, address, placementDate, countRent, countViewers, countFavorites, rating, photoPath 
+        costToUSD, costToEUR, address, placementDate, countRent, countViewers, countFavorites, rating
         FROM announcements 
+
         INNER JOIN subcategories ON announcements.idSubcategory = subcategories.idSubcategory 
         INNER JOIN categories ON subcategories.idCategory = categories.idCategory 
+        INNER JOIN photo ON announcement.idAnnouncement = photo.idAnnouncement AND photo.isMainPhoto = '1'
+
         WHERE (UPPER(announcements.name) LIKE '%$searchQuery%') 
         OR (UPPER(subcategories.name) LIKE '%$searchQuery%') 
         OR (UPPER(categories.name) LIKE '%$searchQuery%')
@@ -29,10 +32,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         LIMIT $limitItemInPage";
     } else if (count($searchQuery) > 0 && $searchQuery != null && $idAnnouncement > 0) {
         $loadAnnouncements = "SELECT idAnnouncement, idUser, announcements.name, costToBYN, 
-        costToUSD, costToEUR, address, placementDate, countRent, countViewers, countFavorites, rating, photoPath 
+        costToUSD, costToEUR, address, placementDate, countRent, countViewers, countFavorites, rating
         FROM announcements 
+        
         INNER JOIN subcategories ON announcements.idSubcategory = subcategories.idSubcategory 
         INNER JOIN categories ON subcategories.idCategory = categories.idCategory 
+        INNER JOIN photo ON announcement.idAnnouncement = photo.idAnnouncement AND photo.isMainPhoto = '1'
+
         WHERE (UPPER(announcements.name) LIKE '%$searchQuery%') 
         OR (UPPER(subcategories.name) LIKE '%$searchQuery%') 
         OR (UPPER(categories.name) LIKE '%$searchQuery%')
@@ -44,15 +50,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $lastAnnouncement = getRow($connect, 'idAnnouncement', "SELECT max(idAnnouncement) AS idAnnouncement FROM announcements");
 
         $loadAnnouncements = "SELECT idAnnouncement, idUser, name, costToBYN, costToUSD, costToEUR, 
-        address, placementDate, countRent, countViewers, countFavorites, rating, photoPath 
+        address, placementDate, countRent, countViewers, countFavorites, rating
         FROM announcements 
+
+        INNER JOIN photo ON announcement.idAnnouncement = photo.idAnnouncement AND photo.isMainPhoto = '1'
+
         WHERE announcements.idAnnouncement <= '$lastAnnouncement' AND idUser = '$idUser'
         ORDER BY announcements.idAnnouncement DESC
         LIMIT $limitItemInPage";
     } else {
         $loadAnnouncements = "SELECT idAnnouncement, idUser, name, costToBYN, costToUSD, costToEUR, 
-        address, placementDate, countRent, countViewers, countFavorites, rating, photoPath 
+        address, placementDate, countRent, countViewers, countFavorites, rating
         FROM announcements 
+
+        INNER JOIN photo ON announcement.idAnnouncement = photo.idAnnouncement AND photo.isMainPhoto = '1'
+
         WHERE announcements.idAnnouncement < '$idAnnouncement' AND idUser = '$idUser'
         ORDER BY announcements.idAnnouncement DESC
         LIMIT $limitItemInPage";

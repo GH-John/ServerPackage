@@ -1,4 +1,4 @@
-<?
+<?php
 $connect = mysqli_connect("localhost", "root", "12345678", "ArendaApp");
 
 function getRow($connect, $rowName, $request)

@@ -9,17 +9,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($connect) {
         if (mysqli_num_rows($response)) {
-
-            $result['code'] = "1";
-            $result['message'] = "SUCCESS: User logged in";
+            $result['response'] = "USER_LOGGED";
         } else {
-            $result['code'] = "2";
-            $result['message'] = "UNSUCCESS: Wrong token";
+            $result['response'] = "WRONG_TOKEN";
         }
     } else {
-        $result["code"] = "101";
-        $result["message"] = "ERROR: Could not connect to DB";
+        $result['response'] = "NOT_CONNECT_TO_DB";
     }
+
+    $result['mysqli_error'] = mysqli_error($connect);
+
     echo json_encode($result);
     mysqli_close($connect);
 }

@@ -5,8 +5,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     require_once '../Utils.php';
 
-    $checkUser = "SELECT name, token, password FROM users WHERE email = '$email'";
+    $checkUser = "SELECT token, password FROM users WHERE email = '$email'";
     $response = mysqli_query($connect, $checkUser);
+
+    $result['token'] = "-1";
 
     if ($connect) {
         $resultCheck = mysqli_num_rows($response);
@@ -14,23 +16,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $row = mysqli_fetch_assoc($response);
 
             if (password_verify($password, $row['password'])) {
-                $result['name'] = $row['name'];
                 $result['token'] = $row['token'];
 
-                $result['code'] = "1";
-                $result['message'] = "SUCCESS: User logged in";
+                $result['response'] = "USER_LOGGED";
             } else {
-                $result['code'] = "2";
-                $result['message'] = "UNSUCCESS: Wrong password";
+                $result['response'] = "WRONG_PASSWORD";
             }
         } else {
-            $result['code'] = "3";
-            $result['message'] = "UNSUCCESS: Wrong email";
+            $result['response'] = "WRONG_EMAIL";
         }
     } else {
-        $result['code'] = "101";
-        $result['message'] = "ERROR: Could not connect to DB";
+        $result['response'] = "NOT_CONNECT_TO_DB";
     }
+
+    $result['mysqli_error'] = mysqli_error($connect);
 
     echo json_encode($result);
     mysqli_close($connect);

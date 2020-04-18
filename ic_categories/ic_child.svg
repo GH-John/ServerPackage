@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="22px" height="23px" viewBox="0 0 22 23" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 60.1 (88133) - https://sketch.com -->
+    <title>ic_child</title>
+    <desc>Created with Sketch.</desc>
+    <g id="ArendaApp-(Android)" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Category-icon" transform="translate(-64.000000, -12.000000)" stroke="#3A3A3A">
+            <g id="ic_child" transform="translate(65.000000, 13.000000)">
+                <g transform="translate(0.000000, -0.000000)">
+                    <circle id="Oval" cx="10" cy="12.6086957" r="8.26086957"></circle>
+                    <g id="Group" transform="translate(6.956522, 0.000000)" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3.04347826" y1="0.434782609" x2="3.04347826" y2="6.52173913" id="Line-5"></line>
+                        <line x1="5.65217391" y1="2.17391304" x2="5.65217391" y2="6.52173913" id="Line-2"></line>
+                        <line x1="0.434782609" y1="2.17391304" x2="0.434782609" y2="6.52173913" id="Line"></line>
+                    </g>
+                    <path d="M0.108695652,11.3043478 C0.97826087,12.4637681 0.97826087,13.6231884 0.108695652,14.7826087" id="Path-6-Copy" stroke-linecap="round" transform="translate(0.434783, 13.043478) scale(-1, 1) translate(-0.434783, -13.043478) "></path>
+                    <path d="M19.2391304,11.3043478 C20.1086957,12.4637681 20.1086957,13.6231884 19.2391304,14.7826087" id="Path-6-Copy-2" stroke-linecap="round"></path>
+                    <path d="M6.95652174,16.9565217 C7.97101449,17.5362319 8.98550725,17.826087 10,17.826087 C11.0144928,17.826087 12.0289855,17.5362319 13.0434783,16.9565217" id="Line-6" stroke-linecap="round"></path>
+                    <path d="M4.34782609,10.8695652 C4.92753623,11.2008282 5.50724638,11.3664596 6.08695652,11.3664596 C6.66666667,11.3664596 7.24637681,11.2008282 7.82608696,10.8695652" id="Line-6-Copy" stroke-linecap="round" transform="translate(6.086957, 11.118012) scale(1, -1) translate(-6.086957, -11.118012) "></path>
+                    <path d="M12.173913,10.8695652 C12.7536232,11.2008282 13.3333333,11.3664596 13.9130435,11.3664596 C14.4927536,11.3664596 15.0724638,11.2008282 15.6521739,10.8695652" id="Line-6-Copy-2" stroke-linecap="round" transform="translate(13.913043, 11.118012) scale(1, -1) translate(-13.913043, -11.118012) "></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

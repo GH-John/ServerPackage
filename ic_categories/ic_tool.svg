@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="23px" height="22px" viewBox="0 0 23 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 60.1 (88133) - https://sketch.com -->
+    <title>ic_tool</title>
+    <desc>Created with Sketch.</desc>
+    <g id="ArendaApp-(Android)" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linejoin="round">
+        <g id="Category-icon" transform="translate(-109.000000, -19.000000)" stroke="#3A3A3A">
+            <g id="ic_tool" transform="translate(106.000000, 19.000000)">
+                <path d="M20,3 L20,9.15384615 L13.999,9.153 L14,23 L11,23 L10.999,9.153 L5,9.15384615 L5,3 L20,3 Z" transform="translate(12.500000, 13.000000) rotate(45.000000) translate(-12.500000, -13.000000) "></path>
+            </g>
+        </g>
+    </g>
+</svg>

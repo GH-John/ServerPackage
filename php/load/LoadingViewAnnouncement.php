@@ -8,8 +8,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
 
     $loadAnnouncement = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, description, 
-    announcements.idSubcategory, announcements.rating, countRent, statusRent, address, phone_1, phone_2, phone_3, 
-    isVisible_phone_1, isVisible_phone_2, isVisible_phone_3, costToBYN, costToUSD, costToEUR, placementDate,
+    announcements.idSubcategory, announcements.rating, countRent, statusRent, address,
+    costToBYN, costToUSD, costToEUR, placementDate,
     IFNULL(favoriteAnnouncements.isFavorite, '0') AS 'isFavorite'
     FROM announcements 
     LEFT JOIN favoriteAnnouncements ON (('$idUser' = favoriteAnnouncements.idUser) 
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     LEFT JOIN reviews ON announcements.idAnnouncement = reviews.idAnnouncement
     WHERE announcements.idAnnouncement = '$idAnnouncement'";
 
-    $loadingUris = "SELECT photoPath FROM photo
+    $loadingUris = "SELECT photoPath, isMainPhoto FROM photo
         WHERE idAnnouncement = '$idAnnouncement'";
 
     $result['announcement'] = array();
@@ -53,6 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $result['code'] = "101";
         $result['message'] = "ERROR: Could not connect to DB";
     }
+    $result['mysqli_error'] = mysqli_error($connect);
+
     echo json_encode($result);
     mysqli_close($connect);
 }
