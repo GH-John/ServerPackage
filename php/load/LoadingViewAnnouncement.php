@@ -7,28 +7,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
 
-    $loadAnnouncement = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, description, 
-    announcements.idSubcategory, announcements.rating, countRent, statusRent, address,
-    costToBYN, costToUSD, costToEUR, placementDate,
-    IFNULL(favoriteAnnouncements.isFavorite, '0') AS 'isFavorite'
-    FROM announcements 
-    LEFT JOIN favoriteAnnouncements ON (('$idUser' = favoriteAnnouncements.idUser) 
-            AND (announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement))
-    INNER JOIN subcategories ON announcements.idSubcategory = subcategories.idSubcategory
-    LEFT JOIN reviews ON announcements.idAnnouncement = reviews.idAnnouncement
-    WHERE announcements.idAnnouncement = '$idAnnouncement'";
+    $loadAnnouncement = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
+        announcements.idSubcategory, announcements.description, announcements.phone_1, announcements.phone_2, announcements.phone_3, 
+        users.login, users.userLogo, costToBYN, costToUSD, costToEUR, address, 
+        placementDate, announcements.countRent, announcements.rating, announcements.countReviews, announcements.countFavorites, 
+        announcements.countViewers, pictures.picture, IFNULL(favoriteAnnouncements.isFavorite, '0') AS 'isFavorite'
+        FROM announcements 
 
-    $loadingUris = "SELECT photoPath, isMainPhoto FROM photo
-        WHERE idAnnouncement = '$idAnnouncement'";
+        INNER JOIN subcategories ON announcements.idSubcategory = subcategories.idSubcategory 
+        INNER JOIN categories ON subcategories.idCategory = categories.idCategory 
+        INNER JOIN users ON announcements.idUser = users.idUser
+        INNER JOIN pictures ON announcements.idAnnouncement = pictures.idAnnouncement AND pictures.isMainPicture = '1'
+
+        LEFT JOIN favoriteAnnouncements ON (('$idUser' = favoriteAnnouncements.idUser) 
+            AND (announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement))            
+
+        WHERE announcements.idAnnouncement = '$idAnnouncement'
+        ORDER BY announcements.idAnnouncement DESC
+        LIMIT $limitItemInPage";
+
+    $loadingUris = "SELECT picture, isMainPicture FROM pictures WHERE idAnnouncement = '$idAnnouncement'";
+
+    $checkViewer = getRow($connect, 'idUser', "SELECT idUser FROM viewers 
+    WHERE idUser = '$idUser'   
+    AND idAnnouncement = '$idAnnouncement'");
+
+    $insertViewer = "INSERT INTO viewers (idUser, idAnnouncement) 
+    VALUES ('$idUser', '$idAnnouncement')";
 
     $result['announcement'] = array();
-    $result['uris'] = array();
+    $result['pictures'] = array();
 
     if ($connect) {
-        $requestUpdate = "UPDATE announcements SET countViewers = countViewers + 1
-            WHERE announcements.idAnnouncement = '$idAnnouncement'";
-
-        $updateViewer = mysqli_query($connect, $requestUpdate);
+        if (!$checkViewer) {
+            mysqli_query($connect, $insertViewer);
+        }
 
         $response = mysqli_query($connect, $loadAnnouncement);
 
@@ -40,20 +53,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
             while ($row = mysqli_fetch_assoc($responseUris)) {
-                array_push($result['uris'], $row);
+                array_push($result['pictures'], $row);
             }
 
-            $result['code'] = "1";
-            $result['message'] = "SUCCESS: Announcement loaded";
+            $result['response'] = "SUCCESS_ANNOUNCEMENT_LOADED";
         } else {
-            $result['code'] = "2";
-            $result['message'] = mysqli_error($connect);
+            $result['response'] = "UNSUCCESS_ANNOUNCEMENT_LOADED";
         }
     } else {
-        $result['code'] = "101";
-        $result['message'] = "ERROR: Could not connect to DB";
+        $result['response'] = "NOT_CONNECT_TO_DB";
     }
-    $result['mysqli_error'] = mysqli_error($connect);
+    $result['error'] = mysqli_error($connect);
 
     echo json_encode($result);
     mysqli_close($connect);

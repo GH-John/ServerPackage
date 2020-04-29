@@ -3,7 +3,9 @@ CREATE DATABASE ArendaApp;
 
 USE ArendaApp;
 
-#RENAME TABLE photo to pictures;
+#RENAME TABLE _ to _;
+
+set session group_concat_max_len = 8000;
 
 CREATE TABLE categories(
 	idCategory INT PRIMARY KEY AUTO_INCREMENT,
@@ -30,7 +32,7 @@ CREATE TABLE users(
 	email VARCHAR(100) NOT NULL,
 	password VARCHAR(70) NOT NULL,
     
-    userLogo VARCHAR(300),
+    userLogo VARCHAR(300) DEFAULT "NONE",
     
     address_1 VARCHAR(100),
     address_2 VARCHAR(100),
@@ -43,7 +45,15 @@ CREATE TABLE users(
 	accountType VARCHAR(20) NOT NULL DEFAULT "PRIVATE_PERSON",
 	balance FLOAT NOT NULL DEFAULT 0.0,
 	rating FLOAT NOT NULL DEFAULT 0.0,
-	statusConfirmationEmail BOOL NOT NULL DEFAULT FALSE
+    
+    statusUser VARCHAR(50) NOT NULL DEFAULT "ACTIVE",
+	statusConfirmationEmail BOOL NOT NULL DEFAULT FALSE,
+    
+    countAnnouncementsUser INT NOT NULL DEFAULT 0,
+    countAllViewers INT NOT NULL DEFAULT 0,
+    
+    created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE UNIQUE INDEX email ON users(email, password);
@@ -72,18 +82,49 @@ CREATE TABLE announcements(
     
     phone_3 VARCHAR(25),
     
-	statusControl VARCHAR(20) NOT NULL DEFAULT "moderation",
+	statusControl VARCHAR(20) NOT NULL DEFAULT "MODERATION",
 	statusRent BOOLEAN NOT NULL DEFAULT FALSE,
     
-    countRent INT NOT NULL DEFAULT 0,
+	rating FLOAT NOT NULL DEFAULT 0.0,
+
+	countRent INT NOT NULL DEFAULT 0,
     countViewers INT NOT NULL DEFAULT 0,
     countReviews INT NOT NULL DEFAULT 0,
     countFavorites INT NOT NULL DEFAULT 0,
-	rating FLOAT NOT NULL DEFAULT 0.0,
 
-    placementDate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	lifeCicle DATETIME NOT NULL
+	lifeCicle DATETIME NOT NULL,
+
+    created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE viewers(
+	idViewer BIGINT PRIMARY KEY AUTO_INCREMENT,
+    idUser BIGINT NOT NULL,
+    FOREIGN KEY (idUser) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
+    idAnnouncement BIGINT NOT NULL,
+	FOREIGN KEY (idAnnouncement) REFERENCES announcements(idAnnouncement) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+DELIMITER //
+create trigger event_after_add_announcement after insert on announcements for each row
+	begin
+		declare _idUser BIGINT;
+        set _idUser = new.idUser;
+        
+        update users set countAnnouncementsUser = countAnnouncementsUser + 1 where idUser = _idUser;
+	end //
+DELIMITER ;
+
+DELIMITER //
+create trigger event_after_add_viewer after insert on viewers for each row
+	begin
+		declare nof BIGINT;
+        set nof = new.idAnnouncement;
+        update announcements set countViewers = countViewers + 1 where idAnnouncement = nof;
+        update users set countAllViewers = countAllViewers + 1 where idUser = (select idUser from announcements where idAnnouncement = nof);
+	end //
+DELIMITER ;
 
 CREATE TABLE reviews(
 	idReview BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -93,7 +134,10 @@ CREATE TABLE reviews(
 	FOREIGN KEY (idAnnouncement) REFERENCES announcements(idAnnouncement) ON UPDATE CASCADE ON DELETE CASCADE,
     
     rating INT NOT NULL DEFAULT 0,
-    review VARCHAR(1000) NOT NULL
+    review VARCHAR(4000) NOT NULL,
+    
+    created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 DELIMITER //
@@ -102,7 +146,7 @@ create trigger event_after_add_reviews after insert on reviews for each row
 		declare nof BIGINT;
         set nof = new.idAnnouncement;	
 		update announcements set announcements.rating = (select avg(rating) from reviews) where announcements.idAnnouncement = nof;
-        update announcements set announcements.countReviews = announcements.countReviews + 1 where announcements.idAnnouncement = nof;
+        update announcements set countReviews = countReviews + 1 where idAnnouncement = nof;
 	end //
 DELIMITER ;
 
@@ -377,8 +421,11 @@ VALUES
     (184, 6, "Другое"),
     (185, 10, "Другое");
 
+INSERT INTO users(token, name, lastName, login, email, password, phone_1) VALUES
+	("token", "name", "lastName", "login", "email", "password", "phone_1");
+
 INSERT INTO announcements(idUser, idSubcategory, name, description, costToBYN, costToUSD, costToEUR, profit,
-	address, phone_1, phone_2, phone_3, placementDate, lifeCicle) VALUES
+	address, phone_1, phone_2, phone_3, created, lifeCicle) VALUES
     (1, 1, "name 1", "desc 1", 
     4.3, 2.2, 2.5, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
@@ -441,33 +488,46 @@ INSERT INTO announcements(idUser, idSubcategory, name, description, costToBYN, c
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now());
     
 INSERT INTO pictures(idAnnouncement, picture, isMainPicture) VALUES
-	(21, "https://images.unsplash.com/photo-1458668383970-8ddd3927deed?ixlib=rb-1.2.1&auto=format&fit=crop&w=747&q=80", true),
-	(22, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", true),
-	(23, "https://images.unsplash.com/photo-1473654729523-203e25dfda10?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",  true),
-	(24, "https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEwMjc5NH0&auto=format&fit=crop&w=667&q=80", true),
-	(25, "https://images.unsplash.com/photo-1505312238910-67e64a4ec582?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", true),
-	(26, "https://images.unsplash.com/photo-1444076784383-69ff7bae1b0a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80", true),
-	(27, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", true),
-	(28, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", true),
-	(29, "https://images.unsplash.com/photo-1461301214746-1e109215d6d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80", true),
-	(30, "https://images.unsplash.com/photo-1503197979108-c824168d51a8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMjU4fQ&auto=format&fit=crop&w=500&q=60", true),
-	(31, "https://images.unsplash.com/photo-1441794016917-7b6933969960?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMDk0fQ&auto=format&fit=crop&w=500&q=60", true),
-	(32, "https://images.unsplash.com/photo-1437750769465-301382cdf094?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", true),
-	(33, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", true),
-	(34, "https://images.unsplash.com/photo-1462733441571-9312d0b53818?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
-	(35, "https://images.unsplash.com/photo-1460400408855-36abd76648b9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
-	(36, "https://images.unsplash.com/photo-1572357280636-1a2c2c26acdc?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", true),
-	(37, "https://images.unsplash.com/photo-1546552916-985b466ffbec?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
-	(38, "https://images.unsplash.com/photo-1524222835726-8e7d453fa83c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
-	(39, "https://images.unsplash.com/photo-1543362906-acfc16c67564?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
-	(40, "https://images.unsplash.com/photo-1550411294-b3b1bd5fce1b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true);
-    
-    
-
-    
-    
-    
-    
+	(1, "https://images.unsplash.com/photo-1458668383970-8ddd3927deed?ixlib=rb-1.2.1&auto=format&fit=crop&w=747&q=80", true),
+	(2, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", true),
+	(3, "https://images.unsplash.com/photo-1473654729523-203e25dfda10?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",  true),
+	(4, "https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEwMjc5NH0&auto=format&fit=crop&w=667&q=80", true),
+	(5, "https://images.unsplash.com/photo-1505312238910-67e64a4ec582?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", true),
+	(6, "https://images.unsplash.com/photo-1444076784383-69ff7bae1b0a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80", true),
+	(7, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", true),
+	(8, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", true),
+	(9, "https://images.unsplash.com/photo-1461301214746-1e109215d6d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80", true),
+	(10, "https://images.unsplash.com/photo-1503197979108-c824168d51a8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMjU4fQ&auto=format&fit=crop&w=500&q=60", true),
+	(11, "https://images.unsplash.com/photo-1441794016917-7b6933969960?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMDk0fQ&auto=format&fit=crop&w=500&q=60", true),
+	(12, "https://images.unsplash.com/photo-1437750769465-301382cdf094?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", true),
+	(13, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", true),
+	(14, "https://images.unsplash.com/photo-1462733441571-9312d0b53818?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
+	(15, "https://images.unsplash.com/photo-1460400408855-36abd76648b9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
+	(16, "https://images.unsplash.com/photo-1572357280636-1a2c2c26acdc?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", true),
+	(17, "https://images.unsplash.com/photo-1546552916-985b466ffbec?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
+	(18, "https://images.unsplash.com/photo-1524222835726-8e7d453fa83c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
+	(19, "https://images.unsplash.com/photo-1543362906-acfc16c67564?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
+	(20, "https://images.unsplash.com/photo-1550411294-b3b1bd5fce1b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", true),
+    (1, "https://images.unsplash.com/photo-1458668383970-8ddd3927deed?ixlib=rb-1.2.1&auto=format&fit=crop&w=747&q=80", false),
+	(2, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", false),
+	(3, "https://images.unsplash.com/photo-1473654729523-203e25dfda10?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",  false),
+	(4, "https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEwMjc5NH0&auto=format&fit=crop&w=667&q=80", false),
+	(5, "https://images.unsplash.com/photo-1505312238910-67e64a4ec582?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80", false),
+	(6, "https://images.unsplash.com/photo-1444076784383-69ff7bae1b0a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80", false),
+	(7, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", false),
+	(8, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", false),
+	(9, "https://images.unsplash.com/photo-1461301214746-1e109215d6d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80", false),
+	(10, "https://images.unsplash.com/photo-1503197979108-c824168d51a8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMjU4fQ&auto=format&fit=crop&w=500&q=60", false),
+	(11, "https://images.unsplash.com/photo-1441794016917-7b6933969960?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMDk0fQ&auto=format&fit=crop&w=500&q=60", false),
+	(12, "https://images.unsplash.com/photo-1437750769465-301382cdf094?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", false),
+	(13, "https://images.unsplash.com/photo-1480497490787-505ec076689f?ixlib=rb-1.2.1&auto=format&fit=crop&w=749&q=80", false),
+	(14, "https://images.unsplash.com/photo-1462733441571-9312d0b53818?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", false),
+	(15, "https://images.unsplash.com/photo-1460400408855-36abd76648b9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", false),
+	(16, "https://images.unsplash.com/photo-1572357280636-1a2c2c26acdc?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", false),
+	(17, "https://images.unsplash.com/photo-1546552916-985b466ffbec?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", false),
+	(18, "https://images.unsplash.com/photo-1524222835726-8e7d453fa83c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", false),
+	(19, "https://images.unsplash.com/photo-1543362906-acfc16c67564?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", false),
+	(20, "https://images.unsplash.com/photo-1550411294-b3b1bd5fce1b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", false);
     
     
     

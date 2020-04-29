@@ -3,7 +3,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     require_once '../Utils.php';
     $token = filter_var(trim($_POST['token']), FILTER_SANITIZE_STRING);
     $idAnnouncement = $_POST['idAnnouncement'];
-    
+
     $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
 
     $checkFavorite = "SELECT idAnnouncement FROM favoriteAnnouncements 
@@ -15,41 +15,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $deleteFromFavorite = "DELETE FROM favoriteAnnouncements 
         WHERE idUser = '$idUser' AND idAnnouncement = '$idAnnouncement'";
 
-    if ($connect) {        
+    $result['response'] = array();
+
+    if ($connect) {
         if ($idUser) {
             $response = mysqli_query($connect, $checkFavorite);
 
             if (mysqli_num_rows($response)) {
 
                 if (mysqli_query($connect, $deleteFromFavorite)) {
-                    $result['isFavorite'] = 'false';
-                    $result['code'] = "1";
-                    $result["message"] = "SUCCESS: Delete from favorite";
+                    $row['isFavorite'] = 'false';
+
+                    array_push($result['response'], $row);
+
+                    $result['code'] = SUCCESS;
                 } else {
-                    $result['isFavorite'] = 'false';
-                    $result['code'] = "0";
-                    $result["message"] = "ERROR: Delete from favorite";
-                }            
+                    $row['isFavorite'] = 'false';
+
+                    array_push($result['response'], $row);
+                    $result['code'] = UNSUCCESS;
+                }
             } else {
 
                 if (mysqli_query($connect, $insertToFavorite)) {
-                    $result['isFavorite'] = 'true';
-                    $result['code'] = "1";
-                    $result["message"] = "SUCCESS: Insert to favorite";
+                    $row['isFavorite'] = 'true';
+
+                    array_push($result['response'], $row);
+                    $result['code'] = SUCCESS;
                 } else {
-                    $result['isFavorite'] = 'false';
-                    $result['code'] = "0";
-                    $result["message"] = "ERROR: Insert to favorite";
+                    $row['isFavorite'] = 'false';
+
+                    array_push($result['response'], $row);
+                    $result['code'] = UNSUCCESS;
                 }
             }
         } else {
-            $result['code'] = "2";
-            $result['message'] = "UNSUCCESS: Wrong token";
+            $result['code'] = USER_NOT_FOUND;
         }
     } else {
-        $result["code"] = "101";
-        $result["message"] = "ERROR: Could not connect to DB";
+        $result['code'] = NOT_CONNECT_TO_DB;
     }
+
+    $result['error'] = mysqli_error($connect);
 
     echo json_encode($result);
     mysqli_close($connect);

@@ -25,6 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         $result['response'] = "NOT_CONNECT_TO_DB";
     }
+
+    $result['error'] = mysqli_error($connect);
+
     echo json_encode($result);
     mysqli_close($connect);
 }

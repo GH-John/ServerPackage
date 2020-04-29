@@ -1,10 +1,13 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $login = filter_var(trim($_POST['login']), FILTER_SANITIZE_STRING);
+
     $name = filter_var(trim($_POST['name']), FILTER_SANITIZE_STRING);
     $lastName = filter_var(trim($_POST['lastName']), FILTER_SANITIZE_STRING);
-    $login = filter_var(trim($_POST['login']), FILTER_SANITIZE_STRING);
+
     $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_STRING);
     $password = filter_var(trim($_POST['password']), FILTER_SANITIZE_STRING);
+
     $phone = filter_var(trim($_POST['phone']), FILTER_SANITIZE_STRING);
     $accountType = filter_var(trim($_POST['accountType']), FILTER_SANITIZE_STRING);
 
@@ -23,8 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $pathForMove = '../../pictures/';
     $pathForServerSave = '/AndroidConnectWithServer/pictures/';
 
-    $result['token'] = "-1";
-
     if ($connect) {
         $checkLogin = "SELECT idUser FROM users WHERE login = '$login'";
         $resCheckLogin = mysqli_query($connect, $checkLogin);
@@ -36,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if (!$rezultCheckLogin) {
             if (!$resultCheck) {
-                $token = password_hash($email, PASSWORD_DEFAULT);
+                $token = password_hash($email . $password, PASSWORD_DEFAULT);
                 $password = password_hash($password, PASSWORD_DEFAULT);
 
                 $userLogoUri = "";
@@ -87,22 +88,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 if (mysqli_query($connect, $insertUser)) {
 
-                    $result['token'] = $token;
-                    $result['response'] = "USER_SUCCESS_REGISTERED";
+                    $selectUser = "SELECT idUser, token, name, lastName,
+                    userLogo, login, email, address_1, address_2, address_3, 
+                    phone_1, phone_2, phone_3, accountType, balance, rating, 
+                    statusUser, created, updated FROM users WHERE token = '$token'";
+                    $resSelect = mysqli_query($connect, $selectUser);
+                    $rows =  mysqli_num_rows($resSelect);
+
+                    if ($rows) {
+                        $result['response'] = mysqli_fetch_assoc($resSelect);
+                        $result['code'] = SUCCESS;
+                    }
                 } else {
-                    $result['response'] = "USER_UNSUCCESS_REGISTERED";
+                    $result['code'] = UNSUCCESS;
                 }
             } else {
-                $result['response'] = "USER_EXISTS";
+                $result['code'] = USER_EXISTS;
             }
         } else {
-            $result['response'] = "USER_WITH_LOGIN_EXISTS";
+            $result['code'] = USER_WITH_LOGIN_EXISTS;
         }
     } else {
-        $result['response'] = "NOT_CONNECT_TO_DB";
+        $result['code'] = NOT_CONNECT_TO_DB;
     }
 
-    $result['mysqli_error'] = mysqli_error($connect);
+    $result['error'] = mysqli_error($connect);
 
     echo json_encode($result);
     mysqli_close($connect);

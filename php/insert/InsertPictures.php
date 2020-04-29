@@ -21,52 +21,56 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $count = $_POST['countPictures'];
     $counterLoadedPicture = 0;
 
-    if (php_ini_loaded_file()) {
-        if (!empty($_FILES) && $connect) {
-            try {
-                for ($x = 0; $x < $count; $x++) {
-                    $name = basename($_FILES['picture_' . $x]['name']);
+    if ($connect) {
+        if (php_ini_loaded_file()) {
+            if (!empty($_FILES) && $connect) {
+                try {
+                    for ($x = 0; $x < $count; $x++) {
+                        $name = basename($_FILES['picture_' . $x]['name']);
 
-                    $newName = time() . $name;
+                        $newName = time() . $name;
 
-                    $newPath = $pathForMove . $newName;
+                        $newPath = $pathForMove . $newName;
 
-                    $newUrl = $url . $pathForServerSave . $newName;
+                        $newUrl = $url . $pathForServerSave . $newName;
 
-                    if (!move_uploaded_file($_FILES['picture_' . $x]['tmp_name'], $newPath)) {
-                        $result['error'] = $_FILES['picture_' . $x]['error'];
-                    } else {
-                        if ($name == $nameMainPicture) {
-                            $request = "INSERT INTO pictures (idAnnouncement, picture, isMainPicture)
-                                    VALUES ('$idAnnouncement', '$newUrl', '1')";
+                        if (!move_uploaded_file($_FILES['picture_' . $x]['tmp_name'], $newPath)) {
+                            $result['error'] = $_FILES['picture_' . $x]['error'];
                         } else {
-                            $request = "INSERT INTO pictures (idAnnouncement, picture)
+                            if ($name == $nameMainPicture) {
+                                $request = "INSERT INTO pictures (idAnnouncement, picture, isMainPicture)
+                                    VALUES ('$idAnnouncement', '$newUrl', '1')";
+                            } else {
+                                $request = "INSERT INTO pictures (idAnnouncement, picture)
                                     VALUES ('$idAnnouncement', '$newUrl')";
-                        }
+                            }
 
-
-                        if (mysqli_query($connect, $request)) {
-                            $counterLoadedPicture++;
+                            if (mysqli_query($connect, $request)) {
+                                $counterLoadedPicture++;
+                            }
                         }
                     }
+                } catch (Exception $e) {
+                    $result['response'] = 'UNKNOW_ERROR';
+                    $result['error'] = $e->getMessage();
+                } finally {
+                    if ($count == $counterLoadedPicture) {
+                        $result['response'] = 'SUCCESS_PICTURES_ADDED';
+                    } else {
+                        $result['response'] = 'UNSUCCESS_PICTURES_ADDED';
+                    }
                 }
-            } catch (Exception $e) {
-                $result['response'] = 'UNKNOW_ERROR';
-                $result['error'] = $e->getMessage();
-            } finally {
-                if ($count == $counterLoadedPicture) {
-                    $result['response'] = 'SUCCESS_PICTURES_ADDED';
-                } else {
-                    $result['response'] = 'UNSUCCESS_PICTURES_ADDED';
-                }
+            } else {
+                $result['response'] = 'UNSUCCESS_PICTURES_ADDED';
             }
         } else {
-            $result['response'] = 'UNSUCCESS_PICTURES_ADDED';
+            $result['response'] = 'PHP_INI_NOT_LOADED';
         }
     } else {
-        $result['response'] = 'PHP_INI_NOT_LOADED';
+        $result['response'] = "NOT_CONNECT_TO_DB";
     }
-    $result['mysqli_error'] = mysqli_error($connect);
+
+    $result['error'] = mysqli_error($connect);
 
     echo json_encode($result);
 }

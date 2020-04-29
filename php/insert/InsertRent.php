@@ -24,4 +24,3 @@
             mysqli_close($connect);
         }
     }
-?>
