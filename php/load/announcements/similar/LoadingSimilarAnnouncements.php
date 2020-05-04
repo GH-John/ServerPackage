@@ -52,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         WHERE (UPPER(announcements.name) LIKE '%$searchQuery%') 
         OR (UPPER(subcategories.name) LIKE '%$searchQuery%') 
         OR (UPPER(categories.name) LIKE '%$searchQuery%')
-        AND categories.idCategory = subcategories.idCategory
         AND announcements.idSubcategory = '$idSubcategory'
 
         GROUP BY announcements.idAnnouncement
@@ -97,7 +96,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         OR (UPPER(subcategories.name) LIKE '%$searchQuery%') 
         OR (UPPER(categories.name) LIKE '%$searchQuery%')
         AND announcements.idAnnouncement < '$idAnnouncement'
-        AND categories.idCategory = subcategories.idCategory
         AND announcements.idSubcategory = '$idSubcategory'
 
         GROUP BY announcements.idAnnouncement
@@ -138,8 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         INNER JOIN users ON announcements.idUser = users.idUser
         LEFT JOIN pictures ON announcements.idAnnouncement = pictures.idAnnouncement 
 
-        WHERE categories.idCategory = subcategories.idCategory
-        AND announcements.idSubcategory = '$idSubcategory'
+        WHERE announcements.idSubcategory = '$idSubcategory'
 
         GROUP BY announcements.idAnnouncement
         ORDER BY announcements.idAnnouncement DESC
@@ -180,7 +177,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         LEFT JOIN pictures ON announcements.idAnnouncement = pictures.idAnnouncement      
 
         WHERE announcements.idAnnouncement < '$idAnnouncement'
-        AND categories.idCategory = subcategories.idCategory
         AND announcements.idSubcategory = '$idSubcategory'
 
         GROUP BY announcements.idAnnouncement

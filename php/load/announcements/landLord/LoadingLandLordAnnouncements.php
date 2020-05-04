@@ -4,7 +4,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $token = filter_var(trim($_POST['token']), FILTER_SANITIZE_STRING);
     $idLandLord = filter_var(trim($_POST['idLandLord']), FILTER_SANITIZE_STRING);
-    $$idAnnouncement = filter_var(trim($_POST['idAnnouncement']), FILTER_SANITIZE_STRING);
+    $idAnnouncement = filter_var(trim($_POST['idAnnouncement']), FILTER_SANITIZE_STRING);
     $searchQuery = filter_var(trim($_POST['query']), FILTER_SANITIZE_STRING);
     $limitItemInPage = filter_var(trim($_POST['limitItemsInPage']), FILTER_SANITIZE_STRING);
 
