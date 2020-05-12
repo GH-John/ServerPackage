@@ -3,7 +3,7 @@ CREATE DATABASE ArendaApp;
 
 USE ArendaApp;
 
-#RENAME TABLE _ to _;
+#RENAME TABLE old_name to new_name;
 
 set session group_concat_max_len = 8000;
 
@@ -158,7 +158,9 @@ CREATE TABLE rent(
 	FOREIGN KEY (idAnnouncement) REFERENCES announcements(idAnnouncement) ON UPDATE CASCADE ON DELETE CASCADE,
 	
     rentalStart DATETIME NOT NULL,
-	rentalEnd DATETIME NOT NULL
+	rentalEnd DATETIME NOT NULL,
+    
+    isProposals BOOL DEFAULT TRUE
 );
 
 DELIMITER //
@@ -530,7 +532,21 @@ INSERT INTO pictures(idAnnouncement, picture, isMainPicture) VALUES
 	(20, "https://images.unsplash.com/photo-1550411294-b3b1bd5fce1b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", false);
     
     
+INSERT INTO rent(idUser, idAnnouncement, rentalStart, rentalEnd, isProposals) VALUES
+	(1, 20, "2020-05-05 15:00:00", "2020-05-06 16:00:00", false),
+	(1, 20, "2020-05-06 15:00:00", "2020-05-07 16:00:00", false),
+	(1, 20, "2020-05-07 15:00:00", "2020-05-08 16:00:00", false),
+	(1, 20, "2020-05-08 15:00:00", "2020-05-09 16:00:00", false),
+	(1, 20, "2020-05-09 15:00:00", "2020-05-10 16:00:00", false),
+	(1, 20, "2020-05-10 15:00:00", "2020-05-11 16:00:00", false),
+	(1, 20, "2020-05-11 15:00:00", "2020-05-12 16:00:00", false),
+	(1, 20, "2020-05-12 15:00:00", "2020-05-13 16:00:00", false),
     
+	(1, 20, "2020-06-01 15:00:00", "2020-06-02 16:00:00", false),
+	(1, 20, "2020-06-02 15:00:00", "2020-06-03 16:00:00", false),
+	(1, 20, "2020-06-03 15:00:00", "2020-06-04 16:00:00", false),
+	(1, 20, "2020-06-04 15:00:00", "2020-06-05 16:00:00", false),
+	(1, 20, "2020-06-05 15:00:00", "2020-06-06 16:00:00", false);
     
     
     
