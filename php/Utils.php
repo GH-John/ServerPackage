@@ -6,6 +6,8 @@ define('NONE_REZULT', 2002);
 define('NOT_CONNECT_TO_DB', 2003);
 define('UNKNOW_ERROR', 2004);
 define('PHP_INI_NOT_LOADED', 2005);
+define('PICTURES_DONT_LOAD', 2006);
+define('FILES_EMPTY', 2007);
 
 define('USER_WITH_LOGIN_EXISTS', 1800);
 define('USER_EXISTS', 1801);

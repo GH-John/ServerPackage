@@ -25,14 +25,14 @@ CREATE TABLE users(
 	idUser BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     token VARCHAR(70) NOT NULL,
 	
-    name VARCHAR(60) NOT NULL,
-	lastName VARCHAR(60) NOT NULL,
+    name VARCHAR(70) NOT NULL,
+	lastName TEXT NOT NULL,
     
 	login VARCHAR(80) NOT NULL,
 	email VARCHAR(100) NOT NULL,
 	password VARCHAR(70) NOT NULL,
     
-    userLogo VARCHAR(300) DEFAULT "NONE",
+    userLogo TEXT,
     
     address_1 VARCHAR(100),
     address_2 VARCHAR(100),
@@ -53,7 +53,7 @@ CREATE TABLE users(
     countAllViewers INT NOT NULL DEFAULT 0,
     
     created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated DATETIME
 );
 
 CREATE UNIQUE INDEX email ON users(email, password);
@@ -65,14 +65,20 @@ CREATE TABLE announcements(
 	idSubcategory INT NOT NULL,
 	FOREIGN KEY (idSubcategory) REFERENCES subcategories(idSubcategory) ON UPDATE CASCADE ON DELETE CASCADE,
 	
-    name VARCHAR(70) NOT NULL,
-	description VARCHAR(4000) NOT NULL,
+    name TEXT NOT NULL,
+	description TEXT NOT NULL,
     
-	costToBYN FLOAT NOT NULL DEFAULT 0.0,
 	costToUSD FLOAT NOT NULL DEFAULT 0.0,
-	costToEUR FLOAT NOT NULL DEFAULT 0.0,
     
-    profit FLOAT NOT NULL DEFAULT 0.0,
+    minTime INT NOT NULL DEFAULT 1,
+    minDay INT NOT NULL DEFAULT 1,
+    maxRentalPeriod INT NOT NULL DEFAULT 1,
+    
+    timeOfIssueWith TIME NOT NULL DEFAULT '00:00:00',
+    timeOfIssueBy TIME NOT NULL DEFAULT '23:00:00',
+    
+    returnTimeWith TIME NOT NULL DEFAULT '00:00:00',
+    returnTimeBy TIME NOT NULL DEFAULT '23:00:00',
     
     address VARCHAR(100) NOT NULL,
     
@@ -82,11 +88,14 @@ CREATE TABLE announcements(
     
     phone_3 VARCHAR(25),
     
+    withSale BOOLEAN NOT NULL DEFAULT FALSE,
+    
 	statusControl VARCHAR(20) NOT NULL DEFAULT "MODERATION",
 	statusRent BOOLEAN NOT NULL DEFAULT FALSE,
     
 	rating FLOAT NOT NULL DEFAULT 0.0,
 
+	profit FLOAT NOT NULL DEFAULT 0.0,
 	countRent INT NOT NULL DEFAULT 0,
     countViewers INT NOT NULL DEFAULT 0,
     countReviews INT NOT NULL DEFAULT 0,
@@ -95,7 +104,7 @@ CREATE TABLE announcements(
 	lifeCicle DATETIME NOT NULL,
 
     created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated DATETIME
 );
 
 CREATE TABLE viewers(
@@ -137,7 +146,7 @@ CREATE TABLE reviews(
     review VARCHAR(4000) NOT NULL,
     
     created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated DATETIME
 );
 
 DELIMITER //
@@ -156,20 +165,30 @@ CREATE TABLE rent(
 	FOREIGN KEY (idUser) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
 	idAnnouncement BIGINT NOT NULL,
 	FOREIGN KEY (idAnnouncement) REFERENCES announcements(idAnnouncement) ON UPDATE CASCADE ON DELETE CASCADE,
-	
+    
     rentalStart DATETIME NOT NULL,
 	rentalEnd DATETIME NOT NULL,
     
-    isProposals BOOL DEFAULT TRUE
+    isProposals BOOLEAN DEFAULT TRUE,
+    isClosed BOOLEAN DEFAULT FALSE,
+    
+    created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated DATETIME
 );
 
 DELIMITER //
-create trigger event_after_add_rent after insert on rent for each row
+create trigger event_after_update_rent after update on rent for each row
 	begin
-		declare nof BIGINT;
+		declare nof BIGINT; 
+        declare status BOOLEAN;
+        
         set nof = new.idAnnouncement;
-		update announcements set countRent = countRent + 1 where idAnnouncement = nof;
-		update announcements set statusRent = true where idAnnouncement = nof;
+        set status = new.isProposals;
+        
+        if(status is false) then
+			update announcements set countRent = countRent + 1 where idAnnouncement = nof;
+			update announcements set statusRent = true where idAnnouncement = nof;
+        end if;
 	end //
 DELIMITER ;
 
@@ -179,7 +198,7 @@ CREATE TABLE pictures(
 	FOREIGN KEY (idAnnouncement) REFERENCES announcements(idAnnouncement) ON UPDATE CASCADE ON DELETE CASCADE,
 	
     picture VARCHAR(300) NOT NULL,
-    isMainPicture BOOL DEFAULT FALSE
+    isMainPicture BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE favoriteAnnouncements(
@@ -188,7 +207,7 @@ CREATE TABLE favoriteAnnouncements(
 	FOREIGN KEY (idUser) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
 	idAnnouncement BIGINT NOT NULL,
 	FOREIGN KEY (idAnnouncement) REFERENCES announcements(idAnnouncement) ON UPDATE CASCADE ON DELETE CASCADE,
-    isFavorite BOOL NOT NULL DEFAULT TRUE
+    isFavorite BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 DELIMITER //
@@ -212,17 +231,17 @@ DELIMITER ;
 INSERT INTO
 	categories
 VALUES
-	(1, "Недвижимость", "ic_categories/ic_property.svg"),
-	(2, "Транспорт", "ic_categories/ic_transport.svg"),
-	(3, "Для детей", "ic_categories/ic_child.svg"),
-	(4, "Электроника", "ic_categories/ic_electronics.svg"),
-	(5, "Для дома, сада и мероприятий", "ic_categories/ic_home.svg"),
-	(6, "Одежда и аксессуары", "ic_categories/ic_pack.svg"),
-	(7, "Инструмент, спецтехника и ремонт", "ic_categories/ic_tool.svg"),
-	(8, "Спорт и активный отдых", "ic_categories/ic_none.svg"),
-	(9, "Хобби", "ic_categories/ic_none.svg"),
-	(10, "Красота и здоровье", "ic_categories/ic_none.svg"),
-	(11, "Животные", "ic_categories/test.svg");
+	(1, "Недвижимость", "http://192.168.43.241/AndroidConnectWithServer/ic_categories/ic_property.jpg"),
+	(2, "Транспорт", "http://192.168.43.241/AndroidConnectWithServer/ic_categories/ic_transport.jpg"),
+	(3, "Для детей", "http://192.168.43.241/AndroidConnectWithServer/ic_categories/ic_child.jpg"),
+	(4, "Электроника", "http://192.168.43.241/AndroidConnectWithServer/ic_categories/ic_electronics.jpg"),
+	(5, "Для дома, сада и мероприятий", "http://192.168.43.241/AndroidConnectWithServer/ic_categories/ic_home.jpg"),
+	(6, "Одежда и аксессуары", "http://192.168.43.241/AndroidConnectWithServer/ic_categories/ic_pack.jpg"),
+	(7, "Инструмент, спецтехника и ремонт", "http://192.168.43.241/AndroidConnectWithServer/ic_categories/ic_tool.jpg"),
+	(8, "Спорт и активный отдых", "http://192.168.43.241/AndroidConnectWithServer/ic_categories/ic_none.jpg"),
+	(9, "Хобби", "http://192.168.43.241/AndroidConnectWithServer/ic_categories/ic_none.jpg"),
+	(10, "Красота и здоровье", "http://192.168.43.241/AndroidConnectWithServer/ic_categories/ic_none.jpg"),
+	(11, "Животные", "http://192.168.43.241/AndroidConnectWithServer/ic_categories/ic_none.jpg");
 
 INSERT INTO
 	subcategories
@@ -426,67 +445,67 @@ VALUES
 INSERT INTO users(token, name, lastName, login, email, password, phone_1) VALUES
 	("token", "name", "lastName", "login", "email", "password", "phone_1");
 
-INSERT INTO announcements(idUser, idSubcategory, name, description, costToBYN, costToUSD, costToEUR, profit,
+INSERT INTO announcements(idUser, idSubcategory, name, description, costToUSD, profit,
 	address, phone_1, phone_2, phone_3, created, lifeCicle) VALUES
     (1, 1, "name 1", "desc 1", 
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 2, "name 2", "desc 2",
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 1, "name 3", "desc 3", 
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1",  
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 2, "name 4", "desc 4",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1",  
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 3, "name 5", "desc 5",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 5, "name 6", "desc 6",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1",  
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 1, "name 7", "desc 7",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 2, "name 8", "desc 8",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 5, "name 9", "desc 9",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 1, "name 10", "desc 10",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 2, "name 11", "desc 11",
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 4, "name 12", "desc 12",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 1, "name 13", "desc 13",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 3, "name 14", "desc 14",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 4, "name 15", "desc 15",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 1, "name 16", "desc 16",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 5, "name 17", "desc 17",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 5, "name 18", "desc 18",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 2, "name 19", "desc 19",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 1, "name 20", "desc 20",  
-    4.3, 2.2, 2.5, 0, "address 1", 
+    2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now());
     
 INSERT INTO pictures(idAnnouncement, picture, isMainPicture) VALUES
@@ -532,21 +551,23 @@ INSERT INTO pictures(idAnnouncement, picture, isMainPicture) VALUES
 	(20, "https://images.unsplash.com/photo-1550411294-b3b1bd5fce1b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60", false);
     
     
-INSERT INTO rent(idUser, idAnnouncement, rentalStart, rentalEnd, isProposals) VALUES
-	(1, 20, "2020-05-05 15:00:00", "2020-05-06 16:00:00", false),
-	(1, 20, "2020-05-06 15:00:00", "2020-05-07 16:00:00", false),
-	(1, 20, "2020-05-07 15:00:00", "2020-05-08 16:00:00", false),
-	(1, 20, "2020-05-08 15:00:00", "2020-05-09 16:00:00", false),
-	(1, 20, "2020-05-09 15:00:00", "2020-05-10 16:00:00", false),
-	(1, 20, "2020-05-10 15:00:00", "2020-05-11 16:00:00", false),
-	(1, 20, "2020-05-11 15:00:00", "2020-05-12 16:00:00", false),
-	(1, 20, "2020-05-12 15:00:00", "2020-05-13 16:00:00", false),
+INSERT INTO rent(idUser, idAnnouncement, rentalStart, rentalEnd) VALUES
+	(1, 20, "2020-05-05 15:00:00", "2020-05-06 16:00:00"),
+	(1, 20, "2020-05-06 15:00:00", "2020-05-07 16:00:00"),
+	(1, 20, "2020-05-07 15:00:00", "2020-05-08 16:00:00"),
+	(1, 20, "2020-05-08 15:00:00", "2020-05-09 16:00:00"),
+	(1, 20, "2020-05-09 15:00:00", "2020-05-10 16:00:00"),
+	(1, 20, "2020-05-10 15:00:00", "2020-05-11 16:00:00"),
+	(1, 20, "2020-05-11 15:00:00", "2020-05-12 16:00:00"),
+	(1, 20, "2020-05-12 15:00:00", "2020-05-13 16:00:00"),
     
-	(1, 20, "2020-06-01 15:00:00", "2020-06-02 16:00:00", false),
-	(1, 20, "2020-06-02 15:00:00", "2020-06-03 16:00:00", false),
-	(1, 20, "2020-06-03 15:00:00", "2020-06-04 16:00:00", false),
-	(1, 20, "2020-06-04 15:00:00", "2020-06-05 16:00:00", false),
-	(1, 20, "2020-06-05 15:00:00", "2020-06-06 16:00:00", false);
+	(1, 20, "2020-06-01 15:00:00", "2020-06-02 16:00:00"),
+	(1, 20, "2020-06-02 15:00:00", "2020-06-03 16:00:00"),
+	(1, 20, "2020-06-03 15:00:00", "2020-06-04 16:00:00"),
+	(1, 20, "2020-06-04 15:00:00", "2020-06-05 16:00:00"),
+	(1, 20, "2020-06-05 15:00:00", "2020-06-06 16:00:00");
+    
+UPDATE rent SET isProposals = false WHERE idUser = 1;
     
     
     
