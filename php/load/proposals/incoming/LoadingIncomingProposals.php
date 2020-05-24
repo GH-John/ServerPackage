@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
 
     if ($idRent > 0) {
-        $loadProposals = "SELECT r.idRent, r.idAnnouncement, r.rentalStart, r.rentalEnd, r.created, r.updated, r.isClosed
+        $loadProposals = "SELECT r.idRent, r.idAnnouncement, r.rentalStart, r.rentalEnd, r.created, r.updated, r.isClosed,
                         (SELECT picture FROM pictures p 
                         WHERE p.idAnnouncement = a.idAnnouncement 
                         AND p.isMainPicture IS TRUE) picture,            
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     FROM rent r
 
                     INNER JOIN announcements a ON a.idAnnouncement = r.idAnnouncement
-                    INNER JOIN users u ON a.idUser = u.idUser
+                    INNER JOIN users u ON u.idUser = r.idUser
 
                     WHERE isProposals IS TRUE
                     AND a.idUser = '$idUser'
@@ -30,16 +30,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     ORDER BY r.idRent DESC
                     LIMIT $limitItemInPage";
     } else if ($idRent == 0) {
-        $loadProposals = "SELECT r.idRent, r.idAnnouncement, r.rentalStart, r.rentalEnd, r.created, r.updated, r.isClosed
+        $loadProposals = "SELECT r.idRent, r.idAnnouncement, r.rentalStart, r.rentalEnd, r.created, r.updated, r.isClosed,
                         (SELECT picture FROM pictures p 
                         WHERE p.idAnnouncement = a.idAnnouncement 
-                        AND p.isMainPicture IS TRUE) picture,            
+                        AND p.isMainPicture IS TRUE) picture,
                     u.idUser, u.userLogo, u.login
 
                     FROM rent r
 
                     INNER JOIN announcements a ON a.idAnnouncement = r.idAnnouncement
-                    INNER JOIN users u ON a.idUser = u.idUser
+                    INNER JOIN users u ON u.idUser = r.idUser
 
                     WHERE isProposals IS TRUE
                     AND a.idUser = '$idUser'
