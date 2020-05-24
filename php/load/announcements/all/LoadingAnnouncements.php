@@ -16,8 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
         announcements.idSubcategory, announcements.description, announcements.phone_1, announcements.phone_2, announcements.phone_3,     
         costToUSD, address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
-        timeOfIssueBy, returnTimeWith, returnTimeBy, 
-        IF(withSale, 'true', 'false') withSale,
+        timeOfIssueBy, returnTimeWith, returnTimeBy, withSale,
         announcements.created AS announcementCreated, announcements.updated AS announcementUpdated, 
         announcements.countRent, announcements.rating AS announcementRating, 
         announcements.countReviews, announcements.countFavorites, announcements.countViewers, 
@@ -29,16 +28,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'idPicture', pictures.idPicture,
                 'idAnnouncement', pictures.idAnnouncement,
                 'picture', pictures.picture, 
-                'isMainPicture', IF(pictures.isMainPicture, 'true', 'false')
+                'isMainPicture', pictures.isMainPicture
             )
         ) AS 'pictures',
 
         IFNULL((SELECT 
-                IF(isFavorite, 'true', 'false')
+                isFavorite
                 FROM favoriteAnnouncements 
                 WHERE favoriteAnnouncements.idUser = '$idUser' 
                 AND announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement), 
-        'false') AS 'isFavorite'
+        0) AS 'isFavorite'
 
         FROM announcements 
 
@@ -58,8 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
         announcements.idSubcategory, announcements.description, announcements.phone_1, announcements.phone_2, announcements.phone_3,     
         costToUSD, address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
-        timeOfIssueBy, returnTimeWith, returnTimeBy, 
-        IF(withSale, 'true', 'false') withSale,
+        timeOfIssueBy, returnTimeWith, returnTimeBy, withSale,
         announcements.created AS announcementCreated, announcements.updated AS announcementUpdated, 
         announcements.countRent, announcements.rating AS announcementRating, 
         announcements.countReviews, announcements.countFavorites, announcements.countViewers, 
@@ -70,16 +68,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             JSON_OBJECT(
                 'idAnnouncement', pictures.idAnnouncement,
                 'picture', pictures.picture, 
-                'isMainPicture', IF(pictures.isMainPicture, 'true', 'false')
+                'isMainPicture', pictures.isMainPicture
             )
         ) AS 'pictures',
 
         IFNULL((SELECT 
-                IF(isFavorite, 'true', 'false')
+                isFavorite
                 FROM favoriteAnnouncements 
                 WHERE favoriteAnnouncements.idUser = '$idUser' 
                 AND announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement), 
-        'false') AS 'isFavorite'
+        0) AS 'isFavorite'
 
         FROM announcements 
 
@@ -100,8 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
         announcements.idSubcategory, announcements.description, announcements.phone_1, announcements.phone_2, announcements.phone_3,     
         costToUSD, address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
-        timeOfIssueBy, returnTimeWith, returnTimeBy, 
-        IF(withSale, 'true', 'false') withSale,
+        timeOfIssueBy, returnTimeWith, returnTimeBy, withSale,
         announcements.created AS announcementCreated, announcements.updated AS announcementUpdated, 
         announcements.countRent, announcements.rating AS announcementRating, 
         announcements.countReviews, announcements.countFavorites, announcements.countViewers, 
@@ -112,16 +109,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             JSON_OBJECT(
                 'idAnnouncement', pictures.idAnnouncement,
                 'picture', pictures.picture, 
-                'isMainPicture', IF(pictures.isMainPicture, 'true', 'false')
+                'isMainPicture', pictures.isMainPicture
             )
         ) AS 'pictures',
 
         IFNULL((SELECT 
-                IF(isFavorite, 'true', 'false')
+                isFavorite
                 FROM favoriteAnnouncements 
                 WHERE favoriteAnnouncements.idUser = '$idUser' 
                 AND announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement), 
-        'false') AS 'isFavorite'
+        0) AS 'isFavorite'
 
         FROM announcements 
 
@@ -136,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         announcements.idSubcategory, announcements.description, announcements.phone_1, announcements.phone_2, announcements.phone_3,     
         costToUSD, address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
         timeOfIssueBy, returnTimeWith, returnTimeBy, 
-        IF(withSale, 'true', 'false') withSale,
+        timeOfIssueBy, returnTimeWith, returnTimeBy, withSale,
         announcements.created AS announcementCreated, announcements.updated AS announcementUpdated, 
         announcements.countRent, announcements.rating AS announcementRating, 
         announcements.countReviews, announcements.countFavorites, announcements.countViewers, 
@@ -147,16 +144,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             JSON_OBJECT(
                 'idAnnouncement', pictures.idAnnouncement,
                 'picture', pictures.picture, 
-                'isMainPicture', IF(pictures.isMainPicture, 'true', 'false')
+                'isMainPicture', pictures.isMainPicture
             )
         ) AS 'pictures',
 
         IFNULL((SELECT 
-                IF(isFavorite, 'true', 'false')
+                isFavorite
                 FROM favoriteAnnouncements 
                 WHERE favoriteAnnouncements.idUser = '$idUser' 
                 AND announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement), 
-        'false') AS 'isFavorite'
+        0) AS 'isFavorite'
 
         FROM announcements 
 
