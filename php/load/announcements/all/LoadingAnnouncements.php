@@ -15,7 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (count($searchQuery) > 0 && $searchQuery != null && $idAnnouncement == 0) {
         $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
         announcements.idSubcategory, announcements.description, announcements.phone_1, announcements.phone_2, announcements.phone_3,     
-        costToUSD, address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
+        hourlyCost, hourlyCurrency, dailyCost, dailyCurrency,
+        address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
         timeOfIssueBy, returnTimeWith, returnTimeBy, withSale,
         announcements.created AS announcementCreated, announcements.updated AS announcementUpdated, 
         announcements.countRent, announcements.rating AS announcementRating, 
@@ -56,7 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else if (count($searchQuery) > 0 && $searchQuery != null && $idAnnouncement > 0) {
         $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
         announcements.idSubcategory, announcements.description, announcements.phone_1, announcements.phone_2, announcements.phone_3,     
-        costToUSD, address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
+        hourlyCost, hourlyCurrency, dailyCost, dailyCurrency,
+        address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
         timeOfIssueBy, returnTimeWith, returnTimeBy, withSale,
         announcements.created AS announcementCreated, announcements.updated AS announcementUpdated, 
         announcements.countRent, announcements.rating AS announcementRating, 
@@ -97,7 +99,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else if ($idAnnouncement == 0) {
         $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
         announcements.idSubcategory, announcements.description, announcements.phone_1, announcements.phone_2, announcements.phone_3,     
-        costToUSD, address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
+        hourlyCost, hourlyCurrency, dailyCost, dailyCurrency,
+        address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
         timeOfIssueBy, returnTimeWith, returnTimeBy, withSale,
         announcements.created AS announcementCreated, announcements.updated AS announcementUpdated, 
         announcements.countRent, announcements.rating AS announcementRating, 
@@ -131,7 +134,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
         announcements.idSubcategory, announcements.description, announcements.phone_1, announcements.phone_2, announcements.phone_3,     
-        costToUSD, address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
+        hourlyCost, hourlyCurrency, dailyCost, dailyCurrency,
+        address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
         timeOfIssueBy, returnTimeWith, returnTimeBy, 
         timeOfIssueBy, returnTimeWith, returnTimeBy, withSale,
         announcements.created AS announcementCreated, announcements.updated AS announcementUpdated, 

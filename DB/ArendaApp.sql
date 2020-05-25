@@ -49,8 +49,11 @@ CREATE TABLE users(
     statusUser VARCHAR(50) NOT NULL DEFAULT "ACTIVE",
 	statusConfirmationEmail BOOL NOT NULL DEFAULT FALSE,
     
-    countAnnouncementsUser INT NOT NULL DEFAULT 0,
-    countAllViewers INT NOT NULL DEFAULT 0,
+    countAnnouncementsUser BIGINT NOT NULL DEFAULT 0,
+    countAllViewers BIGINT NOT NULL DEFAULT 0,
+    
+    countFollowers BIGINT NOT NULL DEFAULT 0,
+    countFollowing BIGINT NOT NULL DEFAULT 0,
     
     created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated DATETIME
@@ -68,7 +71,11 @@ CREATE TABLE announcements(
     name TEXT NOT NULL,
 	description TEXT NOT NULL,
     
-	costToUSD FLOAT NOT NULL DEFAULT 0.0,
+    hourlyCost FLOAT NOT NULL DEFAULT 0.0,
+    hourlyCurrency VARCHAR(20) NOT NULL DEFAULT 'USD',
+    
+    dailyCost FLOAT NOT NULL DEFAULT 0.0,
+    dailyCurrency VARCHAR(20) NOT NULL DEFAULT 'USD',
     
     minTime INT NOT NULL DEFAULT 1,
     minDay INT NOT NULL DEFAULT 1,
@@ -225,6 +232,44 @@ create trigger event_after_delete_favoriteAnnouncements after delete on favorite
 		declare nof BIGINT;
         set nof = old.idAnnouncement;
 		update announcements set countFavorites = countFavorites - 1 where idAnnouncement = nof;
+	end //
+DELIMITER ;
+
+ CREATE TABLE followers(
+	idFollower BIGINT PRIMARY KEY AUTO_INCREMENT,
+    idUser BIGINT NOT NULL,
+	FOREIGN KEY (idUser) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,	
+    idUserFollower BIGINT NOT NULL,
+    FOREIGN KEY (idUserFollower) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE
+ );
+ 
+ CREATE UNIQUE INDEX followIndex ON followers(idUser, idUserFollower);
+ 
+DELIMITER //
+create trigger event_after_add_followers after insert on followers for each row
+	begin
+		declare _idUser BIGINT;
+		declare _idUserFollower BIGINT;
+        
+        set _idUser = new.idUser;
+        set _idUserFollower = new.idUserFollower;
+        
+		update users set countFollowers = countFollowers + 1 where idUser = _idUser;
+		update users set countFollowing = countFollowing + 1 where idUser = _idUserFollower;
+	end //
+DELIMITER ;
+
+DELIMITER //
+create trigger event_after_delete_followers after delete on followers for each row
+	begin
+		declare _idUser BIGINT;
+		declare _idUserFollower BIGINT;
+        
+        set _idUser = old.idUser;
+        set _idUserFollower = old.idUserFollower;
+        
+		update users set countFollowers = countFollowers - 1 where idUser = _idUser;
+		update users set countFollowing = countFollowing - 1 where idUser = _idUserFollower;
 	end //
 DELIMITER ;
 
@@ -443,23 +488,26 @@ VALUES
     (185, 10, "Другое");
 
 INSERT INTO users(token, name, lastName, login, email, password, phone_1) VALUES
-	("token", "name", "lastName", "login", "email", "password", "phone_1");
+	("token", "name1", "lastName1", "login1", "email1", "password1", "phone_1"),
+	("token", "name2", "lastName2", "login2", "email2", "password2", "phone_1"),
+	("token", "name3", "lastName3", "login3", "email3", "password3", "phone_1"),
+	("token", "name4", "lastName4", "login4", "email4", "password4", "phone_1");
 
-INSERT INTO announcements(idUser, idSubcategory, name, description, costToUSD, profit,
+INSERT INTO announcements(idUser, idSubcategory, name, description, hourlyCost, profit,
 	address, phone_1, phone_2, phone_3, created, lifeCicle) VALUES
-    (1, 1, "name 1", "desc 1", 
+    (4, 1, "name 1", "desc 1", 
     2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
-    (1, 2, "name 2", "desc 2",
+    (3, 2, "name 2", "desc 2",
     2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 1, "name 3", "desc 3", 
     2.2, 0, "address 1",  
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
-    (1, 2, "name 4", "desc 4",  
+    (2, 2, "name 4", "desc 4",  
     2.2, 0, "address 1",  
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
-    (1, 3, "name 5", "desc 5",  
+    (3, 3, "name 5", "desc 5",  
     2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 5, "name 6", "desc 6",  
@@ -471,7 +519,7 @@ INSERT INTO announcements(idUser, idSubcategory, name, description, costToUSD, p
     (1, 2, "name 8", "desc 8",  
     2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
-    (1, 5, "name 9", "desc 9",  
+    (4, 5, "name 9", "desc 9",  
     2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 1, "name 10", "desc 10",  
@@ -480,7 +528,7 @@ INSERT INTO announcements(idUser, idSubcategory, name, description, costToUSD, p
     (1, 2, "name 11", "desc 11",
     2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
-    (1, 4, "name 12", "desc 12",  
+    (3, 4, "name 12", "desc 12",  
     2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 1, "name 13", "desc 13",  
@@ -492,19 +540,19 @@ INSERT INTO announcements(idUser, idSubcategory, name, description, costToUSD, p
     (1, 4, "name 15", "desc 15",  
     2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
-    (1, 1, "name 16", "desc 16",  
+    (2, 1, "name 16", "desc 16",  
     2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
     (1, 5, "name 17", "desc 17",  
     2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
-    (1, 5, "name 18", "desc 18",  
+    (3, 5, "name 18", "desc 18",  
     2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
-    (1, 2, "name 19", "desc 19",  
+    (4, 2, "name 19", "desc 19",  
     2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now()),
-    (1, 1, "name 20", "desc 20",  
+    (2, 1, "name 20", "desc 20",  
     2.2, 0, "address 1", 
     "+375(29)111-11-11", "+375(29)111-11-11", "+375(29)111-11-11", now(), now());
     
@@ -552,24 +600,31 @@ INSERT INTO pictures(idAnnouncement, picture, isMainPicture) VALUES
     
     
 INSERT INTO rent(idUser, idAnnouncement, rentalStart, rentalEnd) VALUES
-	(1, 20, "2020-05-05 15:00:00", "2020-05-06 16:00:00"),
-	(1, 20, "2020-05-06 15:00:00", "2020-05-07 16:00:00"),
-	(1, 20, "2020-05-07 15:00:00", "2020-05-08 16:00:00"),
-	(1, 20, "2020-05-08 15:00:00", "2020-05-09 16:00:00"),
-	(1, 20, "2020-05-09 15:00:00", "2020-05-10 16:00:00"),
-	(1, 20, "2020-05-10 15:00:00", "2020-05-11 16:00:00"),
-	(1, 20, "2020-05-11 15:00:00", "2020-05-12 16:00:00"),
-	(1, 20, "2020-05-12 15:00:00", "2020-05-13 16:00:00"),
+	(3, 20, "2020-05-05 15:00:00", "2020-05-06 16:00:00"),
+	(3, 20, "2020-05-06 15:00:00", "2020-05-07 16:00:00"),
+	(4, 19, "2020-05-07 15:00:00", "2020-05-08 16:00:00"),
+	(2, 19, "2020-05-08 15:00:00", "2020-05-09 16:00:00"),
+	(2, 18, "2020-05-09 15:00:00", "2020-05-10 16:00:00"),
+	(4, 15, "2020-05-10 15:00:00", "2020-05-11 16:00:00"),
+	(3, 16, "2020-05-11 15:00:00", "2020-05-12 16:00:00"),
+	(2, 18, "2020-05-12 15:00:00", "2020-05-13 16:00:00"),
     
-	(1, 20, "2020-06-01 15:00:00", "2020-06-02 16:00:00"),
-	(1, 20, "2020-06-02 15:00:00", "2020-06-03 16:00:00"),
-	(1, 20, "2020-06-03 15:00:00", "2020-06-04 16:00:00"),
-	(1, 20, "2020-06-04 15:00:00", "2020-06-05 16:00:00"),
-	(1, 20, "2020-06-05 15:00:00", "2020-06-06 16:00:00");
+	(3, 20, "2020-06-01 15:00:00", "2020-06-02 16:00:00"),
+	(4, 17, "2020-06-02 15:00:00", "2020-06-03 16:00:00"),
+	(4, 13, "2020-06-03 15:00:00", "2020-06-04 16:00:00"),
+	(3, 11, "2020-06-04 15:00:00", "2020-06-05 16:00:00"),
+	(4, 13, "2020-06-05 15:00:00", "2020-06-06 16:00:00");
     
-UPDATE rent SET isProposals = false WHERE idUser = 1;
+-- UPDATE rent SET isProposals = false WHERE idUser = 2;
+-- UPDATE rent SET isProposals = false WHERE idUser = 3;
+-- UPDATE rent SET isProposals = false WHERE idUser = 4;
     
-    
+    insert into followers(idUser, idUserFollower) values
+    (1, 2),
+    (1, 3),
+    (4, 2),
+    (3, 4),
+    (1, 4);
     
     
     

@@ -10,7 +10,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $description = filter_var(trim($_POST['description']), FILTER_SANITIZE_STRING);
 
-    $costToUSD = filter_var(trim($_POST['costToUSD']), FILTER_SANITIZE_STRING);
+    $hourlyCost = filter_var(trim($_POST['hourlyCost']), FILTER_SANITIZE_STRING);
+    $hourlyCurrency = filter_var(trim($_POST['hourlyCurrency']), FILTER_SANITIZE_STRING);
+
+    $dailyCost = filter_var(trim($_POST['dailyCost']), FILTER_SANITIZE_STRING);
+    $dailyCurrency = filter_var(trim($_POST['dailyCurrency']), FILTER_SANITIZE_STRING);
 
     $address = filter_var(trim($_POST['address']), FILTER_SANITIZE_STRING);
 
@@ -59,8 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if ($idUser) {
             $request = "INSERT INTO announcements (
-                            idUser, idSubcategory, name, description, costToUSD, address, 
-                            phone_1, phone_2, phone_3, 
+                            idUser, idSubcategory, name, description, 
+                            hourlyCost, hourlyCurrency, dailyCost, dailyCurrency, 
+                            address, phone_1, phone_2, phone_3, 
                             lifeCicle,
                             minTime, minDay, maxRentalPeriod,
                             timeOfIssueWith, timeOfIssueBy,
@@ -68,8 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             withSale) 
                         VALUES (
                             '$idUser', '$idSubcategory', '$name', '$description', 
-                            '$costToUSD', '$address', 
-                            '$phone_1', '$phone_2','$phone_3', 
+                            '$hourlyCost', '$hourlyCurrency', '$dailyCost', '$dailyCurrency',
+                            '$address', '$phone_1', '$phone_2','$phone_3', 
                             DATE_ADD(UTC_TIMESTAMP(), INTERVAL 60 DAY),
                             '$minTime', '$minDay', '$maxRentalPeriod',
                             '$timeOfIssueWith', '$timeOfIssueBy',

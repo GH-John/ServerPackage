@@ -68,19 +68,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 $result['isMoved'] = true;
                             }
                         } catch (Exception $e) {
-                            $result['response'] = 'UNKNOW_ERROR';
+                            $result['code'] = UNKNOW_ERROR;
                             $result['error'] = $e->getMessage();
                         }
                     } else {
-
-                        $result['empty'] = "files empty";
-
-                        $result['response'] = 'UNSUCCESS_PICTURES_ADDED';
+                        $result['code'] = FILES_EMPTY;
                     }
                 } else {
-                    $result['php.ini'] = "not loaded";
-
-                    $result['response'] = 'PHP_INI_NOT_LOADED';
+                    $result['code'] = PHP_INI_NOT_LOADED;
                 }
 
                 $insertUser = "INSERT INTO users (userLogo, name, lastName, login, email, password, token, phone_1, accountType)
