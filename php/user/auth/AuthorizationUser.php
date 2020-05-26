@@ -6,9 +6,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     require_once '../../Utils.php';
 
     $checkUser = "SELECT idUser, token, name, lastName,
-    userLogo, login, email, password, address_1, address_2, address_3, 
-    phone_1, phone_2, phone_3, accountType, balance, rating, 
-    statusUser, created, updated FROM users WHERE email = '$email_login' OR login = '$email_login'";
+        userLogo, login, email, address_1, address_2, address_3, 
+        phone_1, phone_2, phone_3, accountType, balance, rating, 
+        statusUser, countAnnouncementsUser, countAllViewers, 
+        countFollowers, countFollowing, created, updated 
+    FROM users WHERE email = '$email_login' OR login = '$email_login'";
     $response = mysqli_query($connect, $checkUser);
 
     if ($connect) {

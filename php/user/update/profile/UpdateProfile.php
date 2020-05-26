@@ -20,7 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         address_3 = '$address_3',
                                         phone_1 = '$phone_1',
                                         phone_2 = '$phone_2',
-                                        phone_3 = '$phone_3'
+                                        phone_3 = '$phone_3',
+                                        update = UTC_TIMESTAMP()
                                     WHERE idUser = '$idUser'";
 
     $result['response'] = array();

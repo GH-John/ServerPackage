@@ -56,7 +56,7 @@ CREATE TABLE users(
     countFollowing BIGINT NOT NULL DEFAULT 0,
     
     created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      DATETIME
+	updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE UNIQUE INDEX email ON users(email, password);
@@ -111,7 +111,7 @@ CREATE TABLE announcements(
 	lifeCicle DATETIME NOT NULL,
 
     created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated DATETIME
+    updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE viewers(
@@ -180,7 +180,7 @@ CREATE TABLE rent(
     isClosed BOOLEAN DEFAULT FALSE,
     
     created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated DATETIME
+    updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 DELIMITER //
@@ -272,6 +272,26 @@ create trigger event_after_delete_followers after delete on followers for each r
 		update users set countFollowing = countFollowing - 1 where idUser = _idUserFollower;
 	end //
 DELIMITER ;
+
+CREATE TABLE comments(
+	idComment BIGINT PRIMARY KEY AUTO_INCREMENT,
+    idUser BIGINT NOT NULL,
+	FOREIGN KEY (idUser) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
+    idAnnouncement BIGINT NOT NULL,
+	FOREIGN KEY (idAnnouncement) REFERENCES announcements(idAnnouncement) ON UPDATE CASCADE ON DELETE CASCADE,
+    
+    comment TEXT
+);
+
+CREATE TABLE replyToComments(
+	idReply BIGINT PRIMARY KEY AUTO_INCREMENT,
+    idUser BIGINT NOT NULL,
+	FOREIGN KEY (idUser) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
+    idComment BIGINT NOT NULL,
+	FOREIGN KEY (idComment) REFERENCES comments(idComment) ON UPDATE CASCADE ON DELETE CASCADE,
+    
+    reply TEXT
+);
 
 INSERT INTO
 	categories

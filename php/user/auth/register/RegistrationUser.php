@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $url .= $_SERVER['SERVER_ADDR'];
 
-    $pathForMove = '../../pictures/';
+    $pathForMove = '../../../../pictures/';
     $pathForServerSave = '/AndroidConnectWithServer/pictures/';
 
     if ($connect) {
@@ -84,10 +84,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if (mysqli_query($connect, $insertUser)) {
 
                     $selectUser = "SELECT idUser, token, name, lastName,
-                    userLogo, login, email, address_1, address_2, address_3, 
-                    phone_1, phone_2, phone_3, accountType, balance, rating, 
-                    statusUser, countAnnouncementsUser, countAllViewers, 
-                    countFollowers, countFollowing, created, updated FROM users WHERE token = '$token'";
+                        userLogo, login, email, address_1, address_2, address_3, 
+                        phone_1, phone_2, phone_3, accountType, balance, rating, 
+                        statusUser, countAnnouncementsUser, countAllViewers, 
+                        countFollowers, countFollowing, created, updated 
+                    FROM users WHERE token = '$token'";
                     $resSelect = mysqli_query($connect, $selectUser);
                     $rows =  mysqli_num_rows($resSelect);
 
