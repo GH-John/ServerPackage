@@ -1,6 +1,6 @@
 <?
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    require_once '../../Utils.php';
+    require_once '../../../Utils.php';
 
     $token = filter_var(trim($_POST['token']), FILTER_SANITIZE_STRING);
 
