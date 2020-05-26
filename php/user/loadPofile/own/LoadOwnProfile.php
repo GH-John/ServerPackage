@@ -6,13 +6,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
 
-    $loadProfile = "SELECT name, lastName, login, userLogo,
-                    address_1, address_2, address_3,
-                    phone_1, phone_2, phone_3,
-                    balance, rating, statusUser, 
-                    countAnnouncementsUser, countAllViewers, 
-                    countFollowers, countFollowing, 
-                    created, updated
+    $loadProfile = "SELECT idUser, token, name, lastName,
+                    userLogo, login, email, address_1, address_2, address_3, 
+                    phone_1, phone_2, phone_3, accountType, balance, rating, 
+                    statusUser, countAnnouncementsUser, countAllViewers, 
+                    countFollowers, countFollowing, created, updated
                     FROM users 
                     WHERE idUser = '$idUser'";
 

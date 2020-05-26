@@ -7,9 +7,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $idUserViewer = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
 
-    $loadProfile = "SELECT name, lastName, login, 
-                    userLogo, rating, statusUser, 
-                    countAnnouncementsUser, countFollowers, countFollowing, 
+    $loadProfile = "SELECT idUser, name, lastName,
+                    userLogo, login, accountType, rating, 
+                    statusUser, countAnnouncementsUser, countAllViewers, 
+                    countFollowers, countFollowing,
                     (SELECT EXISTS(SELECT idFollower FROM followers WHERE idUser = '$idUser' AND idUserFollower = '$idUserViewer')) isFollow,
                     created, updated
                     FROM users 

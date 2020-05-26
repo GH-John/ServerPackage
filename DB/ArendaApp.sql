@@ -56,7 +56,7 @@ CREATE TABLE users(
     countFollowing BIGINT NOT NULL DEFAULT 0,
     
     created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated DATETIME
+      DATETIME
 );
 
 CREATE UNIQUE INDEX email ON users(email, password);
