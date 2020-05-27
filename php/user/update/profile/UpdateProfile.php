@@ -1,4 +1,4 @@
-<?
+<?php
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     require_once '../../../Utils.php';
 
@@ -21,10 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         phone_1 = '$phone_1',
                                         phone_2 = '$phone_2',
                                         phone_3 = '$phone_3',
-                                        update = UTC_TIMESTAMP()
+                                        updated = UTC_TIMESTAMP()
                                     WHERE idUser = '$idUser'";
-
-    $result['response'] = array();
 
     if ($connect) {
         if ($idUser) {

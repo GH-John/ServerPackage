@@ -5,7 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     require_once '../../Utils.php';
 
-    $checkUser = "SELECT idUser, token, name, lastName,
+    $checkUser = "SELECT idUser, password, token, name, lastName,
         userLogo, login, email, address_1, address_2, address_3, 
         phone_1, phone_2, phone_3, accountType, balance, rating, 
         statusUser, countAnnouncementsUser, countAllViewers, 

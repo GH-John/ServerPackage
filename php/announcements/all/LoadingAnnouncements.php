@@ -88,9 +88,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         INNER JOIN users ON announcements.idUser = users.idUser
         LEFT JOIN pictures ON announcements.idAnnouncement = pictures.idAnnouncement
 
-        WHERE (UPPER(announcements.name) LIKE '%$searchQuery%') 
-        OR (UPPER(subcategories.name) LIKE '%$searchQuery%') 
-        OR (UPPER(categories.name) LIKE '%$searchQuery%')
+        WHERE ((UPPER(announcements.name) LIKE '%$searchQuery%') 
+                OR (UPPER(subcategories.name) LIKE '%$searchQuery%') 
+                OR (UPPER(categories.name) LIKE '%$searchQuery%'))
         AND announcements.idAnnouncement < '$idAnnouncement'
 
         GROUP BY announcements.idAnnouncement

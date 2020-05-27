@@ -7,13 +7,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
 
     $checkFavorite = "SELECT idAnnouncement FROM favoriteAnnouncements 
-        WHERE idUser = '$idUser' AND idAnnouncement = '$idAnnouncement'";
+        WHERE idAnnouncement = '$idAnnouncement' AND idUser = '$idUser'";
 
     $insertToFavorite = "INSERT INTO favoriteAnnouncements (idUser, idAnnouncement)
         VALUES ('$idUser', '$idAnnouncement')";
 
     $deleteFromFavorite = "DELETE FROM favoriteAnnouncements 
-        WHERE idUser = '$idUser' AND idAnnouncement = '$idAnnouncement'";
+        WHERE idAnnouncement = '$idAnnouncement' AND idUser = '$idUser'";
 
     $result['response'] = array();
 

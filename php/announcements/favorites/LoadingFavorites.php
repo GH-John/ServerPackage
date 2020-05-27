@@ -88,48 +88,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         INNER JOIN users ON announcements.idUser = users.idUser
         LEFT JOIN pictures ON announcements.idAnnouncement = pictures.idAnnouncement
 
-        WHERE (UPPER(announcements.name) LIKE '%$searchQuery%') 
-        OR (UPPER(subcategories.name) LIKE '%$searchQuery%') 
-        OR (UPPER(categories.name) LIKE '%$searchQuery%')
+        WHERE ((UPPER(announcements.name) LIKE '%$searchQuery%') 
+                OR (UPPER(subcategories.name) LIKE '%$searchQuery%') 
+                OR (UPPER(categories.name) LIKE '%$searchQuery%'))
         AND announcements.idAnnouncement < '$idAnnouncement'
 
         GROUP BY announcements.idAnnouncement
         ORDER BY announcements.idAnnouncement DESC
         LIMIT $limitItemInPage";
     } else if ($idAnnouncement == 0) {
-        $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
-        announcements.idSubcategory, announcements.description, announcements.phone_1, announcements.phone_2, announcements.phone_3,     
+        $loadAnnouncements = "SELECT a.idAnnouncement, a.idUser, a.name, 
+        a.idSubcategory, a.description, a.phone_1, a.phone_2, a.phone_3,     
         hourlyCost, hourlyCurrency, dailyCost, dailyCurrency,
-        address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
+        a.address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
         timeOfIssueBy, returnTimeWith, returnTimeBy, withSale,
-        announcements.created AS announcementCreated, announcements.updated AS announcementUpdated, 
-        announcements.countRent, announcements.rating AS announcementRating, 
-        announcements.countReviews, announcements.countFavorites, announcements.countViewers, 
+        a.created AS announcementCreated, a.updated AS announcementUpdated, 
+        a.countRent, a.rating AS announcementRating, 
+        a.countReviews, a.countFavorites, a.countViewers, 
 
-        users.login, users.userLogo, users.created AS userCreated, users.rating AS userRating, users.countAnnouncementsUser,
+        u.login, u.userLogo, u.created AS userCreated, 
+        u.rating AS userRating, u.countAnnouncementsUser,
+        fa.isFavorite,
 
         JSON_ARRAYAGG(
             JSON_OBJECT(
-                'idAnnouncement', pictures.idAnnouncement,
-                'picture', pictures.picture, 
-                'isMainPicture', pictures.isMainPicture
+                'idAnnouncement', p.idAnnouncement,
+                'picture', p.picture, 
+                'isMainPicture', p.isMainPicture
             )
-        ) AS 'pictures',
+        ) AS 'pictures'
 
-        IFNULL((SELECT 
-                isFavorite
-                FROM favoriteAnnouncements 
-                WHERE favoriteAnnouncements.idUser = '$idUser' 
-                AND announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement), 
-        0) AS 'isFavorite'
+        FROM announcements a
 
-        FROM announcements 
+        INNER JOIN users u ON u.idUser = a.idUser
+        INNER JOIN favoriteAnnouncements fa ON fa.idUser = '$idUser' AND fa.idAnnouncement = a.idAnnouncement    
+        LEFT JOIN pictures p ON p.idAnnouncement = a.idAnnouncement
 
-        INNER JOIN users ON announcements.idUser = users.idUser
-        LEFT JOIN pictures ON announcements.idAnnouncement = pictures.idAnnouncement 
-
-        GROUP BY announcements.idAnnouncement
-        ORDER BY announcements.idAnnouncement DESC
+        GROUP BY a.idAnnouncement
+        ORDER BY a.idAnnouncement DESC
         LIMIT $limitItemInPage";
     } else {
         $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 

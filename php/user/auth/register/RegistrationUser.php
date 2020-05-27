@@ -8,6 +8,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_STRING);
     $password = filter_var(trim($_POST['password']), FILTER_SANITIZE_STRING);
 
+
+    $test = $password;
+
+
+
     $phone = filter_var(trim($_POST['phone']), FILTER_SANITIZE_STRING);
     $address_1 = filter_var(trim($_POST['address_1']), FILTER_SANITIZE_STRING);
     $accountType = filter_var(trim($_POST['accountType']), FILTER_SANITIZE_STRING);
@@ -111,6 +116,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     $result['error'] = mysqli_error($connect);
+
+
+    $result['test'] = $test;
+
+
 
     echo json_encode($result);
     mysqli_close($connect);
