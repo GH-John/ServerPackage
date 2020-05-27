@@ -9,6 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = filter_var(trim($_POST['password']), FILTER_SANITIZE_STRING);
 
     $phone = filter_var(trim($_POST['phone']), FILTER_SANITIZE_STRING);
+    $address_1 = filter_var(trim($_POST['address_1']), FILTER_SANITIZE_STRING);
     $accountType = filter_var(trim($_POST['accountType']), FILTER_SANITIZE_STRING);
 
     require_once '../../../Utils.php';
@@ -78,8 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $result['code'] = PHP_INI_NOT_LOADED;
                 }
 
-                $insertUser = "INSERT INTO users (userLogo, name, lastName, login, email, password, token, phone_1, accountType)
-                    VALUES ('$userLogoUri', '$name', '$lastName', '$login', '$email', '$password', '$token', '$phone', '$accountType')";
+                $insertUser = "INSERT INTO users (userLogo, name, lastName, login, email, password, token, phone_1, accountType, address_1)
+                    VALUES ('$userLogoUri', '$name', '$lastName', '$login', '$email', '$password', '$token', '$phone', '$accountType', '$address_1')";
 
                 if (mysqli_query($connect, $insertUser)) {
 

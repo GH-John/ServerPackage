@@ -19,26 +19,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $result['response'] = array();
 
     if ($connect) {
-        if ($isFollow) {
-            if (!$checkFollower) {
-                if (mysqli_query($connect, $followToUser)) {
-                    $result['code'] = SUCCESS;
+        if ($idUserFollower) {
+            if ($isFollow) {
+                if (!$checkFollower) {
+                    if (mysqli_query($connect, $followToUser)) {
+                        $result['code'] = SUCCESS;
+                    } else {
+                        $result['code'] = ERROR_FOLLOW;
+                    }
                 } else {
-                    $result['code'] = ERROR_FOLLOW;
+                    $result['code'] = ALLREADY_FOLLOW;
                 }
             } else {
-                $result['code'] = ALLREADY_FOLLOW;
+                if ($checkFollower) {
+                    if (mysqli_query($connect, $unfollow)) {
+                        $result['code'] = SUCCESS;
+                    } else {
+                        $result['code'] = ERROR_UNFOLLOW;
+                    }
+                } else {
+                    $result['code'] = ALLREADY_UNFOLLOW;
+                }
             }
         } else {
-            if ($checkFollower) {
-                if (mysqli_query($connect, $unfollow)) {
-                    $result['code'] = SUCCESS;
-                } else {
-                    $result['code'] = ERROR_UNFOLLOW;
-                }
-            } else {
-                $result['code'] = ALLREADY_UNFOLLOW;
-            }
+            $result['code'] = USER_NOT_FOUND;
         }
     } else {
         $result['code'] = NOT_CONNECT_TO_DB;
