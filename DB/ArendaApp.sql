@@ -24,7 +24,7 @@ CREATE TABLE subcategories(
 CREATE TABLE users(
 	idUser BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     token VARCHAR(70) NOT NULL,
-	
+	fireToken VARCHAR(200) NOT NULL,
     name VARCHAR(70) NOT NULL,
 	lastName TEXT NOT NULL,
     
@@ -107,6 +107,7 @@ CREATE TABLE announcements(
     countViewers INT NOT NULL DEFAULT 0,
     countReviews INT NOT NULL DEFAULT 0,
     countFavorites INT NOT NULL DEFAULT 0,
+    countComments INT NOT NULL DEFAULT 0,
 
 	lifeCicle DATETIME NOT NULL,
 
@@ -279,9 +280,30 @@ CREATE TABLE comments(
 	FOREIGN KEY (idUser) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
     idAnnouncement BIGINT NOT NULL,
 	FOREIGN KEY (idAnnouncement) REFERENCES announcements(idAnnouncement) ON UPDATE CASCADE ON DELETE CASCADE,
+    countReply INT NOT NULL DEFAULT 0,
     
     comment TEXT
 );
+
+DELIMITER //
+create trigger event_after_add_comments after insert on comments for each row
+	begin		
+		declare _idAnnouncement BIGINT;	
+        set _idAnnouncement = new.idAnnouncement;	
+        
+		update announcements set countComments = countComments + 1 where idAnnouncement = _idAnnouncement;
+	end //
+DELIMITER ;
+
+DELIMITER //
+create trigger event_after_delete_comments after delete on comments for each row
+	begin		
+		declare _idAnnouncement BIGINT;	
+        set _idAnnouncement = new.idAnnouncement;	
+        
+		update announcements set countComments = countComments - 1 where idAnnouncement = _idAnnouncement;
+	end //
+DELIMITER ;
 
 CREATE TABLE replyToComments(
 	idReply BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -291,6 +313,36 @@ CREATE TABLE replyToComments(
 	FOREIGN KEY (idComment) REFERENCES comments(idComment) ON UPDATE CASCADE ON DELETE CASCADE,
     
     reply TEXT
+);
+
+DELIMITER //
+create trigger event_after_add_reply after insert on replyToComments for each row
+	begin		
+		declare _idComment BIGINT;	
+        set _idComment = new.idComment;	
+        
+		update comments set countReply = countReply + 1 where idComment = _idComment;
+	end //
+DELIMITER ;
+
+DELIMITER //
+create trigger event_after_delete_reply after delete on replyToComments for each row
+	begin		
+		declare _idComment BIGINT;	
+        set _idComment = new.idComment;	
+        
+		update comments set countReply = countReply - 1 where idComment = _idComment;
+	end //
+DELIMITER ;
+
+CREATE TABLE messages(
+	idMessage BIGINT PRIMARY KEY AUTO_INCREMENT,
+    idUser_By BIGINT NOT NULL,
+	FOREIGN KEY (idUser_By) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
+    idUser_To BIGINT NOT NULL,
+	FOREIGN KEY (idUser_To) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
+    
+    message TEXT
 );
 
 INSERT INTO
