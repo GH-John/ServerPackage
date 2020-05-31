@@ -48,7 +48,7 @@ class ComposerStaticInit8a9f962af8c27115ac5a0595bc812937
         ),
         'A' => 
         array (
-            'App\\' => 4,
+            'ArendaApp\\' => 10,
         ),
     );
 
@@ -121,7 +121,7 @@ class ComposerStaticInit8a9f962af8c27115ac5a0595bc812937
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
         ),
-        'App\\' => 
+        'ArendaApp\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
