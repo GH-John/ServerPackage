@@ -33,7 +33,7 @@ io.on('connection', function (socket) {
     //Since we are going to use userName through whole socket connection, Let's make it global.   
 
     socket.on('connectToRoom', function (data) {
-        const room_data = JSON.parse(data)
+        const json = JSON.parse(data)
         const userToken = json.userToken;
         const idUser_To = json.idUser_To;
 
