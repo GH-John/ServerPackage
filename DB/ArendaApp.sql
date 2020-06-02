@@ -298,7 +298,7 @@ DELIMITER //
 create trigger event_after_delete_comments after delete on comments for each row
 	begin		
 		declare _idAnnouncement BIGINT;	
-        set _idAnnouncement = new.idAnnouncement;	
+        set _idAnnouncement = old.idAnnouncement;	
         
 		update announcements set countComments = countComments - 1 where idAnnouncement = _idAnnouncement;
 	end //
@@ -328,11 +328,23 @@ DELIMITER //
 create trigger event_after_delete_reply after delete on replyToComments for each row
 	begin		
 		declare _idComment BIGINT;	
-        set _idComment = new.idComment;	
+        set _idComment = old.idComment;	
         
 		update comments set countReply = countReply - 1 where idComment = _idComment;
 	end //
 DELIMITER ;
+
+CREATE TABLE chatRoom(
+	idRoom BIGINT PRIMARY KEY AUTO_INCREMENT,
+    
+    idUser_From BIGINT NOT NULL,
+	FOREIGN KEY (idUser_From) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
+    idUser_To BIGINT NOT NULL,
+	FOREIGN KEY (idUser_To) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
+    
+    created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE messages(
 	idMessage BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -345,18 +357,6 @@ CREATE TABLE messages(
 	FOREIGN KEY (idUser_To) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
     
     message TEXT,
-    
-    created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE chatRoom(
-	idRoom BIGINT PRIMARY KEY AUTO_INCREMENT,
-    
-    idUser_From BIGINT NOT NULL,
-	FOREIGN KEY (idUser_From) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
-    idUser_To BIGINT NOT NULL,
-	FOREIGN KEY (idUser_To) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
     
     created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP

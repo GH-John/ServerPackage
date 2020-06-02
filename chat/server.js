@@ -1,20 +1,25 @@
-const USER_NOT_FOUND = -1802;
+const SUCCESS = -2000;
+const UNSUCCESS = -2001;
 const NONE_REZULT = -2002;
 const NOT_CONNECT_TO_DB = -2003;
+const USER_NOT_FOUND = -1802;
+const UNKNOW_ERROR = -2004
 
 var app = require('express')();
-const mysql = require('mysql2')
+const Database = require('./database/DB.js');
 
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
 
-const db = mysql.createConnection({
+const dbConfig = {
     host: "localhost",
     user: "root",
     database: "ArendaApp",
     password: "12345678"
-})
+};
+
+var db = new Database(dbConfig);
 
 app.get('/', function (req, res) {
     res.send("Welcome to my socket");
@@ -23,7 +28,6 @@ app.get('/', function (req, res) {
 http.listen(port, function () {
     console.log('Server listening at port %d', port);
 });
-
 
 io.on('connection', function (socket) {
 
@@ -37,10 +41,14 @@ io.on('connection', function (socket) {
         const userToken = json.userToken;
         const idUser_To = json.idUser_To;
 
+        console.log(`From json - userToken : ${userToken}; idUser_To : ${idUser_To}`)
+
         getIdRoom(userToken, idUser_To).then(
             idRoom => {
                 if (idRoom == USER_NOT_FOUND) {
                     console.log("Room is not created")
+
+                    socket.emit('USER_NOT_FOUND', USER_NOT_FOUND);
                 } else {
                     socket.join(`${idRoom}`)
 
@@ -55,48 +63,72 @@ io.on('connection', function (socket) {
                     //socket.broadcast.to : all the users except the user who has joined will get the message
                     // socket.broadcast.to(`${roomName}`).emit('newUserToChatRoom',userName);
 
-                    io.to(`${idRoom}`).emit('connected', idRoom);
+                    const response = {
+                        idRoom: idRoom
+                    };
+
+                    io.to(`${idRoom}`).emit('connected', JSON.stringify(response));
                 }
             }
-        );
+        ).catch(error => {
+            console.log("Error from catch : " + error.message);
+            // db.close();
+        });
     })
 
-    socket.on('unsubscribe', function (data) {
-        console.log('unsubscribe trigged')
-        const room_data = JSON.parse(data);
-        const userName = room_data.userName;
-        const roomName = room_data.roomName;
+    // socket.on('unsubscribe', function (data) {
+    //     console.log('unsubscribe trigged')
+    //     const room_data = JSON.parse(data);
+    //     const userName = room_data.userName;
+    //     const roomName = room_data.roomName;
 
-        console.log(`Username : ${userName} leaved Room Name : ${roomName}`);
-        socket.broadcast.to(`${roomName}`).emit('userLeftChatRoom', userName);
-        socket.leave(`${roomName}`);
-    })
+    //     console.log(`Username : ${userName} leaved Room Name : ${roomName}`);
+    //     socket.broadcast.to(`${roomName}`).emit('userLeftChatRoom', userName);
+    //     socket.leave(`${roomName}`);
+    // })
 
-    socket.on('newMessage', function (data) {
-        console.log('newMessage triggered');
+    socket.on('sendedMessage', function (data) {
+        console.log('sendedMessage...');
 
         const messageData = JSON.parse(data);
-        const messageContent = messageData.messageContent;
-        const roomName = messageData.roomName;
+        const content = messageData.message;
+        const idRoom = messageData.idRoom;
 
-        const idUser_From = messageData.idUser_From;
+        const userToken = messageData.userToken;
         const idUser_To = messageData.idUser_To;
 
-        console.log(`[Room Number ${roomName}] ${userName} : ${messageContent}`);
+        console.log(`idRoom : ${idRoom}; userToken : ${userToken}; content : ${content}`);
         // Just pass the data that has been passed from the writer socket
 
-        insertMessage(idUser_From, idUser_To, messageContent).then(response => {
-            const chatData = {
-                userName: userName,
-                messageContent: messageContent,
-                roomName: roomName
-            };
-            socket.broadcast.to(`${roomName}`).emit('updateChat', JSON.stringify(chatData)); // Need to be parsed into Kotlin object in Kotlin
+        insertMessage(idRoom, userToken, idUser_To, content).then(response => {
+            var message;
+
+            if (response == SUCCESS) {
+                message = {
+                    message: content,
+                    codeHandler: response
+                };
+
+                socket.broadcast.to(`${idRoom}`).emit('updateChat', JSON.stringify(message));
+            } else {
+                message = {
+                    message: content,
+                    codeHandler: response
+                };
+                socket.emit('sendMessageError', message);
+            }
         },
             error => {
-                socket.broadcast.to(`${roomName}`).emit('errorInsertMessage', error); // Need to be parsed into Kotlin object in Kotlin
-            })
-    })
+                const message = {
+                    message: content,
+                    codeHandler: UNKNOW_ERROR,
+                    error: error.message
+                };
+
+                console.error(error.message);
+                socket.emit('sendMessageError', message);
+            });
+    });
 
     // socket.on('typing',function(roomNumber){ //Only roomNumber is needed here
     //     console.log('typing triggered')
@@ -109,6 +141,9 @@ io.on('connection', function (socket) {
     // })
 
     socket.on('disconnect', function () {
+        if (io.sockets.clients('room').length == 0)
+            db.close();
+
         console.log("One of sockets disconnected from our server.")
     });
 })
@@ -128,7 +163,7 @@ function getIdRoom(userToken, idUser_To) {
 
                 return USER_NOT_FOUND;
             } else {
-                console.log("User is founded : " + idUser_From);
+                console.log("idUser_From - " + idUser_From)
 
                 var sql = `SELECT idRoom FROM chatRoom 
                         WHERE 
@@ -136,14 +171,15 @@ function getIdRoom(userToken, idUser_To) {
                         AND 
                         (idUser_To = '${idUser_To}' OR idUser_To = '${idUser_From}')`;
 
-                runQuery(sql).then(
+                return db.query(sql).then(
                     response => {
                         if (response.length > 0) {
+                            console.log("Response from already room - " + response);
                             return response[0].idRoom
                         } else {
-                            createChatRoom(idUser_From, idUser_To).then(response => {
-                                if (response.length > 0)
-                                    return response.insertId
+                            return createChatRoom(idUser_From, idUser_To).then(response => {
+                                console.log("Response from create room - " + response);
+                                return response.insertId
                             });
                         }
                     }
@@ -152,6 +188,8 @@ function getIdRoom(userToken, idUser_To) {
         }
     ).then(
         response => {
+            // db.close();
+
             if (response == USER_NOT_FOUND) {
                 return USER_NOT_FOUND;
             } else {
@@ -159,70 +197,59 @@ function getIdRoom(userToken, idUser_To) {
                 return response;
             }
         }
-    ).catch(error => console.log("Error from catch : " + error.message))
+    );
 }
 
 function getIdUser(token) {
     var sql = `SELECT idUser FROM users WHERE token = '${token}'`;
-    console.log("Check and get idUser...");
+    console.log("Check and get idUser_From...");
 
-    return runQuery(sql);
+    return db.query(sql);
 }
+
+function checkIdUser(idUser) {
+    var sql = `SELECT idUser FROM users WHERE idUser = '${idUser}'`;
+    console.log("Check idUser...");
+
+    return db.query(sql);
+}
+
 
 function createChatRoom(idUser_From, idUser_To) {
     var sql = `INSERT INTO chatRoom (idUser_From, idUser_To) VALUE ('${idUser_From}', '${idUser_To}')`;
     console.log("Create chat room...");
 
-    return runQuery(sql);
+    return db.query(sql);
 }
 
-function insertMessage(idUser_From, idUser_To, message) {
-    var sql = `INSERT INTO messages (idUser_From, idUser_To, message) VALUE (${idUser_From}, ${idUser_To}, '${message}')`;
-    console.log("Insert message...");
+function insertMessage(idRoom, userToken, idUser_To, message) {
+    return getIdUser(userToken).then(
+        response => {
+            if (response.length > 0)
+                return response[0].idUser
 
-    return runQuery(sql);
-}
-
-function runQuery(sql) {
-    return new Promise(function (resolve, reject) {
-        db.connect(function (error) {
-            if (error) {
-                reject(error);
-                console.error("Connect error: " + error.message);
-            }
+            return USER_NOT_FOUND;
+        }
+    ).then(
+        idUser_From => {
+            if (idUser_From == USER_NOT_FOUND)
+                return USER_NOT_FOUND;
             else {
-                console.log("MySQL connect is success");
+                console.log("Insert message...");
 
-                db.query(sql, function (error, result) {
-                    if (error) {
-                        reject(error);
-                        console.error("Error: " + error.message);
-                    } else {
-                        db.end(function (error) {
-                            if (error) {
-                                reject(error);
-                                console.error("Error: " + error.message);
-                            } else {
-                                console.log("MySQL connect is closed");
-                                console.log("Query result : " + result);
-                                resolve(result);
-                            }
-                        });
+                var sql = `INSERT INTO messages (idRoom, idUser_From, idUser_To, message) VALUE (${idRoom}, ${idUser_From}, ${idUser_To}, '${message}')`;
+                return db.query(sql).then(
+                    response => {
+                        if (response.affectedRows > 0) {
+                            console.log("SUCCESS");
+                            return SUCCESS;
+                        } else {
+                            console.log("UNSUCCESS");
+                            return UNSUCCESS;
+                        }
                     }
-                });
+                )
             }
-        });
-    });
+        }
+    );
 }
-
-//Result Object from mysql
-// {
-    // fieldCount: 0,
-    // affectedRows: 1,
-    // insertId: 0,
-    // serverStatus: 34,
-    // warningCount: 0,
-    // message: '(Rows matched: 1 Changed: 1 Warnings: 0',
-    // protocol41: true,
-    // changedRows: 1
-// }
