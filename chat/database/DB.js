@@ -6,6 +6,7 @@ class Database {
     }
     refreshConnect(config) {
         this.connection = mysql.createConnection(config);
+        console.log("Database connection created")
     }
     query(sql, args) {
         return new Promise((resolve, reject) => {
@@ -19,8 +20,12 @@ class Database {
     close() {
         return new Promise((resolve, reject) => {
             this.connection.end(err => {
-                if (err)
+                if (err) {
+                    console.error("Database connect error : " + err.message)
                     return reject(err);
+                }
+
+                console.log("Database connect closed")
                 resolve();
             });
         });

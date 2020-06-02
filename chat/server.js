@@ -76,16 +76,17 @@ io.on('connection', function (socket) {
         });
     })
 
-    // socket.on('unsubscribe', function (data) {
-    //     console.log('unsubscribe trigged')
-    //     const room_data = JSON.parse(data);
-    //     const userName = room_data.userName;
-    //     const roomName = room_data.roomName;
+    socket.on('unsubscribe', function (data) {
+        console.log('unsubscribe')
+        const messageData = JSON.parse(data);
+        const idRoom = messageData.idRoom;
 
-    //     console.log(`Username : ${userName} leaved Room Name : ${roomName}`);
-    //     socket.broadcast.to(`${roomName}`).emit('userLeftChatRoom', userName);
-    //     socket.leave(`${roomName}`);
-    // })
+        // socket.broadcast.to(`${roomName}`).emit('userLeftChatRoom', userName);
+        socket.leave(`${idRoom}`);
+
+        // if (io.sockets.clients(idRoom).length == 0)
+        //     db.close();
+    })
 
     socket.on('sendedMessage', function (data) {
         console.log('sendedMessage...');
@@ -141,9 +142,6 @@ io.on('connection', function (socket) {
     // })
 
     socket.on('disconnect', function () {
-        if (io.sockets.clients('room').length == 0)
-            db.close();
-
         console.log("One of sockets disconnected from our server.")
     });
 })
