@@ -4,8 +4,10 @@ const NONE_REZULT = -2002;
 const NOT_CONNECT_TO_DB = -2003;
 const USER_NOT_FOUND = -1802;
 const UNKNOW_ERROR = -2004
+const FAILED_CREATE_ROOM = -2013
 
 var app = require('express')();
+const crypto = require('crypto');
 const Database = require('./database/DB.js');
 
 var http = require('http').Server(app);
@@ -43,16 +45,28 @@ io.on('connection', function (socket) {
 
         console.log(`From json - userToken : ${userToken}; idUser_To : ${idUser_To}`)
 
-        getIdRoom(userToken, idUser_To).then(
-            idRoom => {
-                if (idRoom == USER_NOT_FOUND) {
+        getRoom(userToken, idUser_To).then(
+            room => {
+                if (room == USER_NOT_FOUND) {
                     console.log("Room is not created")
 
-                    socket.emit('USER_NOT_FOUND', USER_NOT_FOUND);
-                } else {
-                    socket.join(`${idRoom}`)
+                    var onError = {
+                        codeHandler: USER_NOT_FOUND
+                    };
 
-                    console.log(`User token : ${userToken}; idUser_To : ${idUser_To}; idRoom : ${idRoom}`)
+                    socket.emit('onError', onError);
+                } else if (room == FAILED_CREATE_ROOM) {
+                    console.log("Room is not created")
+
+                    var onError = {
+                        codeHandler: FAILED_CREATE_ROOM
+                    };
+
+                    socket.emit('onError', onError);
+                } else {
+                    socket.join(`${room}`)
+
+                    console.log(`User token : ${userToken}; idUser_To : ${idUser_To}; room : ${room}`)
 
 
                     // Let the other user get notification that user got into the room;
@@ -64,14 +78,22 @@ io.on('connection', function (socket) {
                     // socket.broadcast.to(`${roomName}`).emit('newUserToChatRoom',userName);
 
                     const response = {
-                        idRoom: idRoom
+                        room: room
                     };
 
-                    io.to(`${idRoom}`).emit('connected', JSON.stringify(response));
+                    socket.emit('connected', JSON.stringify(response));
                 }
             }
         ).catch(error => {
             console.log("Error from catch : " + error.message);
+
+            var onError = {
+                error: error.message,
+                codeHandler: UNKNOW_ERROR
+            };
+
+            socket.emit('onError', onError);
+
             // db.close();
         });
     })
@@ -81,7 +103,7 @@ io.on('connection', function (socket) {
         const messageData = JSON.parse(data);
         const idRoom = messageData.idRoom;
 
-        // socket.broadcast.to(`${roomName}`).emit('userLeftChatRoom', userName);
+        // socket.to(`${roomName}`).emit('userLeftChatRoom', userName);
         socket.leave(`${idRoom}`);
 
         // if (io.sockets.clients(idRoom).length == 0)
@@ -89,14 +111,14 @@ io.on('connection', function (socket) {
     })
 
     socket.on('sendedMessage', function (data) {
-        console.log('sendedMessage...');
+        console.log('sending Message...');
 
-        const messageData = JSON.parse(data);
-        const content = messageData.message;
-        const idRoom = messageData.idRoom;
+        const json = JSON.parse(data);
+        const content = json.message;
+        const idRoom = json.idRoom;
 
-        const userToken = messageData.userToken;
-        const idUser_To = messageData.idUser_To;
+        const userToken = json.userToken;
+        const idUser_To = json.idUser_To;
 
         console.log(`idRoom : ${idRoom}; userToken : ${userToken}; content : ${content}`);
         // Just pass the data that has been passed from the writer socket
@@ -107,10 +129,42 @@ io.on('connection', function (socket) {
             if (response == SUCCESS) {
                 message = {
                     message: content,
-                    codeHandler: response
                 };
 
-                socket.broadcast.to(`${idRoom}`).emit('updateChat', JSON.stringify(message));
+                getRoom(userToken, idUser_To).then(
+                    room => {
+                        if (room == USER_NOT_FOUND) {
+                            console.log("Room is not created")
+
+                            var onError = {
+                                codeHandler: USER_NOT_FOUND
+                            };
+
+                            socket.emit('onError', onError);
+                        } else if (room == FAILED_CREATE_ROOM) {
+                            console.log("Room is not created")
+
+                            var onError = {
+                                codeHandler: FAILED_CREATE_ROOM
+                            };
+
+                            socket.emit('onError', onError);
+                        } else {
+                            socket.to(`${room}`).emit('updateChat', JSON.stringify(message));
+                        }
+                    }
+                ).catch(error => {
+                    console.log("Error from catch : " + error.message);
+
+                    var onError = {
+                        error: error.message,
+                        codeHandler: UNKNOW_ERROR
+                    };
+
+                    socket.emit('onError', onError);
+
+                    // db.close();
+                });
             } else {
                 message = {
                     message: content,
@@ -146,7 +200,7 @@ io.on('connection', function (socket) {
     });
 })
 
-function getIdRoom(userToken, idUser_To) {
+function getRoom(userToken, idUser_To) {
     return getIdUser(userToken).then(
         response => {
             if (response.length > 0)
@@ -163,7 +217,7 @@ function getIdRoom(userToken, idUser_To) {
             } else {
                 console.log("idUser_From - " + idUser_From)
 
-                var sql = `SELECT idRoom FROM chatRoom 
+                var sql = `SELECT room FROM chatRoom 
                         WHERE 
                         (idUser_From = '${idUser_From}' OR idUser_From = '${idUser_To}') 
                         AND 
@@ -172,12 +226,12 @@ function getIdRoom(userToken, idUser_To) {
                 return db.query(sql).then(
                     response => {
                         if (response.length > 0) {
-                            console.log("Response from already room - " + response);
-                            return response[0].idRoom
+                            console.log("Response from already room - " + response[0]);
+                            return response[0].room
                         } else {
-                            return createChatRoom(idUser_From, idUser_To).then(response => {
-                                console.log("Response from create room - " + response);
-                                return response.insertId
+                            return createChatRoom(idUser_From, idUser_To).then(room => {
+                                console.log("Response from create room - " + room);
+                                return room;
                             });
                         }
                     }
@@ -214,10 +268,24 @@ function checkIdUser(idUser) {
 
 
 function createChatRoom(idUser_From, idUser_To) {
-    var sql = `INSERT INTO chatRoom (idUser_From, idUser_To) VALUE ('${idUser_From}', '${idUser_To}')`;
+    var sql = `INSERT INTO chatRoom (idUser_From, idUser_To, room) VALUE 
+                ('${idUser_From}', '${idUser_To}', '${generateMD5Hex(idUser_From, idUser_To)}')`;
+
+    var sqlSelectRoom = `SELECT room FROM chatRoom 
+                        WHERE 
+                        (idUser_From = '${idUser_From}' OR idUser_From = '${idUser_To}') 
+                        AND 
+                        (idUser_To = '${idUser_To}' OR idUser_To = '${idUser_From}')`;
     console.log("Create chat room...");
 
-    return db.query(sql);
+    return db.query(sql).then(response => {
+        if (response.insertId > 0)
+            return db.query(sqlSelectRoom).then(
+                response => { return response[0].room }
+            );
+        else
+            return FAILED_CREATE_ROOM;
+    });
 }
 
 function insertMessage(idRoom, userToken, idUser_To, message) {
@@ -250,4 +318,14 @@ function insertMessage(idRoom, userToken, idUser_To, message) {
             }
         }
     );
+}
+
+function random(min, max) {
+    const q = Math.random() * (max - min) + min;
+    console.log(q)
+    return q;
+}
+
+function generateMD5Hex(f, s) {
+    return crypto.createHash('md5').update(`${f}` + random(s, f) + `${s}`).digest('hex');
 }

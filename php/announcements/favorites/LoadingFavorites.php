@@ -3,8 +3,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     require_once '../../Utils.php';
 
     $token = filter_var(trim($_POST['token']), FILTER_SANITIZE_STRING);
-    $idAnnouncement = filter_var(trim($_POST['idAnnouncement']), FILTER_SANITIZE_STRING);
-    $searchQuery = filter_var(trim($_POST['query']), FILTER_SANITIZE_STRING);
+    $idFavorite = filter_var(trim($_POST['idFavorite']), FILTER_SANITIZE_STRING);
     $limitItemInPage = filter_var(trim($_POST['limitItemsInPage']), FILTER_SANITIZE_STRING);
 
     if ($limitItemInPage == 0)
@@ -12,179 +11,72 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
 
-    if (count($searchQuery) > 0 && $searchQuery != null && $idAnnouncement == 0) {
-        $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
-        announcements.idSubcategory, announcements.description, announcements.phone_1, announcements.phone_2, announcements.phone_3,     
-        hourlyCost, hourlyCurrency, dailyCost, dailyCurrency,
-        address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
-        timeOfIssueBy, returnTimeWith, returnTimeBy, withSale,
-        announcements.created AS announcementCreated, announcements.updated AS announcementUpdated, 
-        announcements.countRent, announcements.rating AS announcementRating, 
-        announcements.countReviews, announcements.countFavorites, announcements.countViewers, 
+    if ($idFavorite == 0) {
+        $loadAnnouncements = "SELECT fa.idFavorite, a.idAnnouncement, a.idUser, a.name,           
+        a.hourlyCost, a.hourlyCurrency, a.dailyCost, a.dailyCurrency, a.address,
+        a.created AS announcementCreated, a.updated AS announcementUpdated,
+            (SELECT picture FROM pictures pic
+                WHERE isMainPicture IS TRUE
+             AND pic.idAnnouncement = a.idAnnouncement
+            ) picture,
+        u.login, u.userLogo,
+        fa.isFavorite
 
-        users.login, users.userLogo, users.created AS userCreated, users.rating AS userRating, users.countAnnouncementsUser,
+        FROM favoriteAnnouncements fa
 
-        JSON_ARRAYAGG(
-            JSON_OBJECT(
-                'idPicture', pictures.idPicture,
-                'idAnnouncement', pictures.idAnnouncement,
-                'picture', pictures.picture, 
-                'isMainPicture', pictures.isMainPicture
-            )
-        ) AS 'pictures',
-
-        IFNULL((SELECT 
-                isFavorite
-                FROM favoriteAnnouncements 
-                WHERE favoriteAnnouncements.idUser = '$idUser' 
-                AND announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement), 
-        0) AS 'isFavorite'
-
-        FROM announcements 
-
-        INNER JOIN subcategories ON announcements.idSubcategory = subcategories.idSubcategory 
-        INNER JOIN categories ON subcategories.idCategory = categories.idCategory 
-        INNER JOIN users ON announcements.idUser = users.idUser
-        LEFT JOIN pictures ON announcements.idAnnouncement = pictures.idAnnouncement         
-
-        WHERE (UPPER(announcements.name) LIKE '%$searchQuery%') 
-        OR (UPPER(subcategories.name) LIKE '%$searchQuery%') 
-        OR (UPPER(categories.name) LIKE '%$searchQuery%')
-
-        GROUP BY announcements.idAnnouncement
-        ORDER BY announcements.idAnnouncement DESC
-        LIMIT $limitItemInPage";
-    } else if (count($searchQuery) > 0 && $searchQuery != null && $idAnnouncement > 0) {
-        $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
-        announcements.idSubcategory, announcements.description, announcements.phone_1, announcements.phone_2, announcements.phone_3,     
-        hourlyCost, hourlyCurrency, dailyCost, dailyCurrency,
-        address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
-        timeOfIssueBy, returnTimeWith, returnTimeBy, withSale,
-        announcements.created AS announcementCreated, announcements.updated AS announcementUpdated, 
-        announcements.countRent, announcements.rating AS announcementRating, 
-        announcements.countReviews, announcements.countFavorites, announcements.countViewers, 
-
-        users.login, users.userLogo, users.created AS userCreated, users.rating AS userRating, users.countAnnouncementsUser,
-        
-        JSON_ARRAYAGG(
-            JSON_OBJECT(
-                'idAnnouncement', pictures.idAnnouncement,
-                'picture', pictures.picture, 
-                'isMainPicture', pictures.isMainPicture
-            )
-        ) AS 'pictures',
-
-        IFNULL((SELECT 
-                isFavorite
-                FROM favoriteAnnouncements 
-                WHERE favoriteAnnouncements.idUser = '$idUser' 
-                AND announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement), 
-        0) AS 'isFavorite'
-
-        FROM announcements 
-
-        INNER JOIN subcategories ON announcements.idSubcategory = subcategories.idSubcategory 
-        INNER JOIN categories ON subcategories.idCategory = categories.idCategory 
-        INNER JOIN users ON announcements.idUser = users.idUser
-        LEFT JOIN pictures ON announcements.idAnnouncement = pictures.idAnnouncement
-
-        WHERE ((UPPER(announcements.name) LIKE '%$searchQuery%') 
-                OR (UPPER(subcategories.name) LIKE '%$searchQuery%') 
-                OR (UPPER(categories.name) LIKE '%$searchQuery%'))
-        AND announcements.idAnnouncement < '$idAnnouncement'
-
-        GROUP BY announcements.idAnnouncement
-        ORDER BY announcements.idAnnouncement DESC
-        LIMIT $limitItemInPage";
-    } else if ($idAnnouncement == 0) {
-        $loadAnnouncements = "SELECT a.idAnnouncement, a.idUser, a.name, 
-        a.idSubcategory, a.description, a.phone_1, a.phone_2, a.phone_3,     
-        hourlyCost, hourlyCurrency, dailyCost, dailyCurrency,
-        a.address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
-        timeOfIssueBy, returnTimeWith, returnTimeBy, withSale,
-        a.created AS announcementCreated, a.updated AS announcementUpdated, 
-        a.countRent, a.rating AS announcementRating, 
-        a.countReviews, a.countFavorites, a.countViewers, 
-
-        u.login, u.userLogo, u.created AS userCreated, 
-        u.rating AS userRating, u.countAnnouncementsUser,
-        fa.isFavorite,
-
-        JSON_ARRAYAGG(
-            JSON_OBJECT(
-                'idAnnouncement', p.idAnnouncement,
-                'picture', p.picture, 
-                'isMainPicture', p.isMainPicture
-            )
-        ) AS 'pictures'
-
-        FROM announcements a
-
+        INNER JOIN announcements a ON a.idAnnouncement = fa.idAnnouncement
         INNER JOIN users u ON u.idUser = a.idUser
-        INNER JOIN favoriteAnnouncements fa ON fa.idUser = '$idUser' AND fa.idAnnouncement = a.idAnnouncement    
         LEFT JOIN pictures p ON p.idAnnouncement = a.idAnnouncement
-
-        GROUP BY a.idAnnouncement
-        ORDER BY a.idAnnouncement DESC
+		
+        WHERE fa.idUser = '$idUser' AND fa.isFavorite IS TRUE
+        
+        GROUP BY fa.idAnnouncement, fa.idFavorite
+        ORDER BY fa.idFavorite DESC
         LIMIT $limitItemInPage";
     } else {
-        $loadAnnouncements = "SELECT announcements.idAnnouncement, announcements.idUser, announcements.name, 
-        announcements.idSubcategory, announcements.description, announcements.phone_1, announcements.phone_2, announcements.phone_3,     
-        hourlyCost, hourlyCurrency, dailyCost, dailyCurrency,
-        address, minTime, minDay, maxRentalPeriod, timeOfIssueWith, 
-        timeOfIssueBy, returnTimeWith, returnTimeBy, 
-        timeOfIssueBy, returnTimeWith, returnTimeBy, withSale,
-        announcements.created AS announcementCreated, announcements.updated AS announcementUpdated, 
-        announcements.countRent, announcements.rating AS announcementRating, 
-        announcements.countReviews, announcements.countFavorites, announcements.countViewers, 
+        $loadAnnouncements = "SELECT fa.idFavorite, a.idAnnouncement, a.idUser, a.name,
+        a.hourlyCost, a.hourlyCurrency, a.dailyCost, a.dailyCurrency, a.address,
+        a.created AS announcementCreated, a.updated AS announcementUpdated,
+            (SELECT picture FROM pictures pic
+                WHERE isMainPicture IS TRUE
+             AND pic.idAnnouncement = a.idAnnouncement
+            ) picture,
+        u.login, u.userLogo,
+        fa.isFavorite
 
-        users.login, users.userLogo, users.created AS userCreated, users.rating AS userRating, users.countAnnouncementsUser,
+        FROM favoriteAnnouncements fa
 
-        JSON_ARRAYAGG(
-            JSON_OBJECT(
-                'idAnnouncement', pictures.idAnnouncement,
-                'picture', pictures.picture, 
-                'isMainPicture', pictures.isMainPicture
-            )
-        ) AS 'pictures',
+        INNER JOIN announcements a ON a.idAnnouncement = fa.idAnnouncement
+        INNER JOIN users u ON u.idUser = a.idUser
+        LEFT JOIN pictures p ON p.idAnnouncement = a.idAnnouncement
 
-        IFNULL((SELECT 
-                isFavorite
-                FROM favoriteAnnouncements 
-                WHERE favoriteAnnouncements.idUser = '$idUser' 
-                AND announcements.idAnnouncement = favoriteAnnouncements.idAnnouncement), 
-        0) AS 'isFavorite'
+        WHERE fa.idFavorite < '$idFavorite' AND fa.idUser = '$idUser' AND fa.isFavorite IS TRUE
 
-        FROM announcements 
-
-        INNER JOIN users ON announcements.idUser = users.idUser
-        LEFT JOIN pictures ON announcements.idAnnouncement = pictures.idAnnouncement      
-
-        WHERE announcements.idAnnouncement < '$idAnnouncement'
-
-        GROUP BY announcements.idAnnouncement
-        ORDER BY announcements.idAnnouncement DESC
+        GROUP BY fa.idAnnouncement, fa.idFavorite
+        ORDER BY fa.idFavorite DESC
         LIMIT $limitItemInPage";
     }
 
     $result['response'] = array();
 
     if ($connect) {
-        $response = mysqli_query($connect, $loadAnnouncements);
-        $rows = mysqli_num_rows($response);
-        if ($rows > 0) {
-            while ($row = mysqli_fetch_assoc($response)) {
-                $row['pictures'] = json_decode($row['pictures']);
+        if ($idUser) {
+            $response = mysqli_query($connect, $loadAnnouncements);
+            $rows = mysqli_num_rows($response);
+            if ($rows > 0) {
+                while ($row = mysqli_fetch_assoc($response)) {
+                    array_push($result['response'], $row);
+                }
 
-                array_push($result['response'], $row);
+                $result['code'] = SUCCESS;
+            } else if ($rows == 0) {
+
+                $result['code'] = NONE_REZULT;
+            } else {
+                $result['code'] = UNKNOW_ERROR;
             }
-
-            $result['code'] = SUCCESS;
-        } else if ($rows == 0) {
-
-            $result['code'] = NONE_REZULT;
         } else {
-            $result['code'] = UNKNOW_ERROR;
+            $result['code'] = USER_NOT_FOUND;
         }
     } else {
         $result['code'] = NOT_CONNECT_TO_DB;
