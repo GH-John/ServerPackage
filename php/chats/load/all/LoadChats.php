@@ -12,20 +12,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
 
     if ($idChat == 0) {
-        $loadChats = "SELECT c.idChat, u.login, u.userLogo FROM chats c 
+        $loadChats = "SELECT c.idChat, u.login, u.userLogo, (count(m.idMessage) > 0) countMessages FROM chats c 
         INNER JOIN users u 
-        ON (c.idUser_To != '$idUser' AND u.idUser = c.idUser_To)
+            ON (c.idUser_To != '$idUser' AND u.idUser = c.idUser_To)
+
+        INNER JOIN messages m ON m.idChat = c.idChat       
         
+        GROUP BY c.idChat
         ORDER BY c.idChat DESC
         LIMIT $limitItemInPage";
     } else {
-        $loadChats = "SELECT c.idChat, u.login, u.userLogo FROM chats c 
+        $loadChats = "SELECT c.idChat, u.login, u.userLogo, (count(m.idMessage) > 0) countMessages FROM chats c 
         INNER JOIN users u 
-        ON (c.idUser_To != '$idUser' AND u.idUser = c.idUser_To)
+            ON (c.idUser_To != '$idUser' AND u.idUser = c.idUser_To)
 
+        INNER JOIN messages m ON m.idChat = c.idChat       
+        
         WHERE c.idChat < '$idChat'
 
+        GROUP BY c.idChat
         ORDER BY c.idChat DESC
+
         LIMIT $limitItemInPage";
     }
 
