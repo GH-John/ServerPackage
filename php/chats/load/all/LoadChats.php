@@ -13,18 +13,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($idChat == 0) {
         $loadChats = "SELECT c.idChat, u.login, u.userLogo FROM chats c 
-        ON ((c.idUser_To = '$idUser' AND u.idUser = c.idUser_To) OR 
-                (c.idUser_From = '$idUser' AND u.idUser = c.idUser_From))
+        INNER JOIN users u
+                ON ((c.idUser_To = '$idUser' AND u.idUser = c.idUser_From) OR 
+                (c.idUser_From = '$idUser' AND u.idUser = c.idUser_To))
 
-        INNER JOIN messages m ON m.idChat = c.idChat       
+        INNER JOIN messages m ON m.idChat = c.idChat
         
         GROUP BY c.idChat, u.idUser
         ORDER BY c.idChat DESC
         LIMIT $limitItemInPage";
     } else {
         $loadChats = "SELECT c.idChat, u.login, u.userLogo FROM chats c 
-                ON ((c.idUser_To = '$idUser' AND u.idUser = c.idUser_To) OR 
-                (c.idUser_From = '$idUser' AND u.idUser = c.idUser_From))
+        INNER JOIN users u
+                ON ((c.idUser_To = '$idUser' AND u.idUser = c.idUser_From) OR 
+                (c.idUser_From = '$idUser' AND u.idUser = c.idUser_To))
 
         INNER JOIN messages m ON m.idChat = c.idChat       
         
@@ -35,6 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         LIMIT $limitItemInPage";
     }
+
+    $result['response'] = array();
 
     if ($connect) {
         if ($idUser) {

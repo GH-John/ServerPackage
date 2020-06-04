@@ -273,7 +273,7 @@ function checkIdUser(idUser) {
 
 
 function createRoom(idUser_From, idUser_To) {
-    var sql = `INSERT INTO chatRoom (idUser_From, idUser_To, room) VALUE 
+    var sql = `INSERT INTO chats (idUser_From, idUser_To, room) VALUE 
                 ('${idUser_From}', '${idUser_To}', '${generateMD5Hex(idUser_From, idUser_To)}')`;
 
     var sqlSelectRoom = `SELECT idChat, room FROM chats 

@@ -4,6 +4,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $token = filter_var(trim($_POST['token']), FILTER_SANITIZE_STRING);
     $idMessage = filter_var(trim($_POST['idMessage']), FILTER_SANITIZE_STRING);
+    $idChat = filter_var(trim($_POST['idChat']), FILTER_SANITIZE_STRING);
     $limitItemInPage = filter_var(trim($_POST['limitItemsInPage']), FILTER_SANITIZE_STRING);
 
     if ($limitItemInPage == 0)
