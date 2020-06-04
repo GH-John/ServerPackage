@@ -64,9 +64,9 @@ io.on('connection', function (socket) {
 
                     socket.emit('onError', onError);
                 } else {
-                    socket.join(`${room}`)
+                    socket.join(`${room.room}`)
 
-                    console.log(`User token : ${userToken}; idUser_To : ${idUser_To}; room : ${room}`)
+                    console.log(`User token : ${userToken}; idUser_To : ${idUser_To}; room : ${room.room}`)
 
 
                     // Let the other user get notification that user got into the room;
@@ -78,7 +78,7 @@ io.on('connection', function (socket) {
                     // socket.broadcast.to(`${roomName}`).emit('newUserToChatRoom',userName);
 
                     const response = {
-                        room: room
+                        idChat: room.idChat
                     };
 
                     socket.emit('connected', JSON.stringify(response));
@@ -115,15 +115,15 @@ io.on('connection', function (socket) {
 
         const json = JSON.parse(data);
         const content = json.message;
-        const idRoom = json.idRoom;
+        const idChat = json.idChat;
 
         const userToken = json.userToken;
         const idUser_To = json.idUser_To;
 
-        console.log(`idRoom : ${idRoom}; userToken : ${userToken}; content : ${content}`);
+        console.log(`idChat : ${idChat}; userToken : ${userToken}; content : ${content}`);
         // Just pass the data that has been passed from the writer socket
 
-        insertMessage(idRoom, userToken, idUser_To, content).then(response => {
+        insertMessage(idChat, userToken, idUser_To, content).then(response => {
             var message;
 
             if (response == SUCCESS) {
@@ -150,7 +150,7 @@ io.on('connection', function (socket) {
 
                             socket.emit('onError', onError);
                         } else {
-                            socket.to(`${room}`).emit('updateChat', JSON.stringify(message));
+                            socket.to(`${room.room}`).emit('updateChat', JSON.stringify(message));
                         }
                     }
                 ).catch(error => {
@@ -217,7 +217,7 @@ function getRoom(userToken, idUser_To) {
             } else {
                 console.log("idUser_From - " + idUser_From)
 
-                var sql = `SELECT room FROM chatRoom 
+                var sql = `SELECT idChat, room FROM chats 
                         WHERE 
                         (idUser_From = '${idUser_From}' OR idUser_From = '${idUser_To}') 
                         AND 
@@ -227,9 +227,14 @@ function getRoom(userToken, idUser_To) {
                     response => {
                         if (response.length > 0) {
                             console.log("Response from already room - " + response[0]);
-                            return response[0].room
+                            const room = {
+                                idChat: response[0].idChat,
+                                room: response[0].room
+                            }
+
+                            return room
                         } else {
-                            return createChatRoom(idUser_From, idUser_To).then(room => {
+                            return createRoom(idUser_From, idUser_To).then(room => {
                                 console.log("Response from create room - " + room);
                                 return room;
                             });
@@ -245,7 +250,7 @@ function getRoom(userToken, idUser_To) {
             if (response == USER_NOT_FOUND) {
                 return USER_NOT_FOUND;
             } else {
-                console.log("Room id : " + response);
+                console.log("Room : " + response.room);
                 return response;
             }
         }
@@ -267,11 +272,11 @@ function checkIdUser(idUser) {
 }
 
 
-function createChatRoom(idUser_From, idUser_To) {
+function createRoom(idUser_From, idUser_To) {
     var sql = `INSERT INTO chatRoom (idUser_From, idUser_To, room) VALUE 
                 ('${idUser_From}', '${idUser_To}', '${generateMD5Hex(idUser_From, idUser_To)}')`;
 
-    var sqlSelectRoom = `SELECT room FROM chatRoom 
+    var sqlSelectRoom = `SELECT idChat, room FROM chats 
                         WHERE 
                         (idUser_From = '${idUser_From}' OR idUser_From = '${idUser_To}') 
                         AND 
@@ -281,14 +286,21 @@ function createChatRoom(idUser_From, idUser_To) {
     return db.query(sql).then(response => {
         if (response.insertId > 0)
             return db.query(sqlSelectRoom).then(
-                response => { return response[0].room }
+                response => {
+                    const room = {
+                        idChat: response[0].idChat,
+                        room: response[0].room
+                    }
+
+                    return room;
+                }
             );
         else
             return FAILED_CREATE_ROOM;
     });
 }
 
-function insertMessage(idRoom, userToken, idUser_To, message) {
+function insertMessage(idChat, userToken, idUser_To, message) {
     return getIdUser(userToken).then(
         response => {
             if (response.length > 0)
@@ -303,7 +315,7 @@ function insertMessage(idRoom, userToken, idUser_To, message) {
             else {
                 console.log("Insert message...");
 
-                var sql = `INSERT INTO messages (idRoom, idUser_From, idUser_To, message) VALUE (${idRoom}, ${idUser_From}, ${idUser_To}, '${message}')`;
+                var sql = `INSERT INTO messages (idChat, idUser_From, idUser_To, message) VALUE (${idChat}, ${idUser_From}, ${idUser_To}, '${message}')`;
                 return db.query(sql).then(
                     response => {
                         if (response.affectedRows > 0) {

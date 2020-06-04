@@ -334,8 +334,8 @@ create trigger event_after_delete_reply after delete on replyToComments for each
 	end //
 DELIMITER ;
 
-CREATE TABLE chatRoom(
-	idRoom BIGINT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE chats(
+	idChat BIGINT PRIMARY KEY AUTO_INCREMENT,
     
     idUser_From BIGINT NOT NULL,
 	FOREIGN KEY (idUser_From) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -349,8 +349,8 @@ CREATE TABLE chatRoom(
 
 CREATE TABLE messages(
 	idMessage BIGINT PRIMARY KEY AUTO_INCREMENT,
-    idRoom BIGINT NOT NULL,
-	FOREIGN KEY (idRoom) REFERENCES chatRoom(idRoom) ON UPDATE CASCADE ON DELETE CASCADE,
+    idChat BIGINT NOT NULL,
+	FOREIGN KEY (idChat) REFERENCES chats(idChat) ON UPDATE CASCADE ON DELETE CASCADE,
     
     idUser_From BIGINT NOT NULL,
 	FOREIGN KEY (idUser_From) REFERENCES users(idUser) ON UPDATE CASCADE ON DELETE CASCADE,
