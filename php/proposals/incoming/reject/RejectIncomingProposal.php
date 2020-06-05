@@ -1,17 +1,16 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    require_once '../../Utils.php';
+    require_once '../../../Utils.php';
 
     $token = filter_var(trim($_POST['token']), FILTER_SANITIZE_STRING);
     $idRent = filter_var(trim($_POST['idRent']), FILTER_SANITIZE_STRING);
 
     $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
     $isProposalExist = getRow($connect, 'isExist', "SELECT EXISTS(SELECT idRent FROM rent r 
-                                                    INNER JOIN announcement a ON r.idAnnouncement = a.idAnnouncement 
+                                                    INNER JOIN announcements a ON r.idAnnouncement = a.idAnnouncement 
                                                     WHERE r.idRent = '$idRent' AND a.idUser = '$idUser') isExist");
 
-    $rejectProposal = "DELETE FROM rent INNER JOIN announcement a ON r.idAnnouncement = a.idAnnouncement 
-                        WHERE idRent = '$idRent' AND a.idUser = '$idUser'";
+    $rejectProposal = "DELETE FROM rent r WHERE idRent = '$idRent'";
 
 
     $result['response'] = array();
