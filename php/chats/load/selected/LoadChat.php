@@ -27,9 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         FROM messages m
                         INNER JOIN chats c ON c.idChat = m.idChat
 
-                        WHERE (m.idUser_To = '$idUser' AND m.idUser_From = '$idUser_To') OR 
-                                (m.idUser_To = '$idUser_To' AND m.idUser_From = '$idUser') OR
-                                (m.idUser_To = '$idUser' AND m.idUser_From = '$idUser')
+                        WHERE ((m.idUser_To = '$idUser' AND m.idUser_From = '$idUser_To') OR 
+                                (m.idUser_To = '$idUser_To' AND m.idUser_From = '$idUser'))
 
                         ORDER BY m.idMessage
                         LIMIT $limitItemInPage";
@@ -47,8 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         INNER JOIN chats c ON c.idChat = m.idChat
 
                         WHERE ((m.idUser_To = '$idUser' AND m.idUser_From = '$idUser_To') OR 
-                                (m.idUser_To = '$idUser_To' AND m.idUser_From = '$idUser') OR
-                                (m.idUser_To = '$idUser' AND m.idUser_From = '$idUser')) AND 
+                                (m.idUser_To = '$idUser_To' AND m.idUser_From = '$idUser')) AND 
                         m.idMessage > '$idMessageAfter'
 
                         ORDER BY m.idMessage
@@ -87,8 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         INNER JOIN chats c ON c.idChat = m.idChat
 
                         WHERE ((m.idUser_To = '$idUser' AND m.idUser_From = '$idUser_To') OR 
-                                (m.idUser_To = '$idUser_To' AND m.idUser_From = '$idUser') OR
-                                (m.idUser_To = '$idUser' AND m.idUser_From = '$idUser')) AND 
+                                (m.idUser_To = '$idUser_To' AND m.idUser_From = '$idUser')) AND 
                         (m.idMessage > '$idMessageAfter' AND m.idMessage < '$idMessageBefore')
 
                         ORDER BY m.idMessage 
