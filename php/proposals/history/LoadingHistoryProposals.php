@@ -16,36 +16,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         (SELECT picture FROM pictures p 
                         WHERE p.idAnnouncement = a.idAnnouncement 
                         AND p.isMainPicture IS TRUE) picture,            
-                    u.idUser, u.userLogo, u.login
+                        u.idUser, u.userLogo, u.login
 
-                    FROM rent r
+                        FROM rent r
 
-                    INNER JOIN announcements a ON a.idAnnouncement = r.idAnnouncement
-                    INNER JOIN users u ON a.idUser = u.idUser
+                        INNER JOIN announcements a ON a.idAnnouncement = r.idAnnouncement
+                        INNER JOIN users u ON a.idUser = u.idUser
 
-                    WHERE isClosed IS TRUE
-                    AND a.idUser = '$idUser' OR r.idUser = '$idUser'
-                    AND r.idRent < '$idRent'
+                        WHERE isClosed IS TRUE
+                        AND a.idUser = '$idUser' OR r.idUser = '$idUser'
+                        AND r.idRent < '$idRent'
 
-                    ORDER BY r.idRent DESC
-                    LIMIT $limitItemInPage";
+                        ORDER BY r.idRent DESC
+                        LIMIT $limitItemInPage";
     } else if ($idRent == 0) {
-        $loadProposals = "SELECT r.idRent, r.idAnnouncement, r.rentalStart, r.rentalEnd, r.created, r.updated, r.isClosed,
+        $loadProposals = "SELECT r.idRent, r.idAnnouncement, r.rentalStart, r.rentalEnd, 
+                        r.created, r.updated, r.isClosed,
                         (SELECT picture FROM pictures p 
                         WHERE p.idAnnouncement = a.idAnnouncement 
-                        AND p.isMainPicture IS TRUE) picture,            
-                    u.idUser, u.userLogo, u.login
+                        AND p.isMainPicture IS TRUE) picture,
 
-                    FROM rent r
+                        IF((a.idUser = '$idUser'), 1, 0) isIncoming,
+                        u.idUser, u.userLogo, u.login 
 
-                    INNER JOIN announcements a ON a.idAnnouncement = r.idAnnouncement
-                    INNER JOIN users u ON a.idUser = u.idUser
+                        FROM rent r
 
-                    WHERE isClosed IS TRUE
-                    AND a.idUser = '$idUser' OR r.idUser = '$idUser'
+                        INNER JOIN announcements a ON a.idAnnouncement = r.idAnnouncement
+                        INNER JOIN users u ON (u.idUser = r.idUser AND a.idUser = '$idUser') OR
+                                    (u.idUser = a.idUser AND r.idUser = '$idUser')
 
-                    ORDER BY r.idRent DESC
-                    LIMIT $limitItemInPage";
+                        WHERE (r.isClosed IS TRUE)
+                        AND (a.idUser = '$idUser' OR r.idUser = '$idUser')
+                        AND r.idRent < '$idRent'
+
+                        ORDER BY r.idRent DESC
+                        LIMIT $limitItemInPage";
     }
 
     $result['response'] = array();

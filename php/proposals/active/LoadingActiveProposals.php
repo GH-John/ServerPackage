@@ -16,38 +16,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         r.created, r.updated, r.isClosed,
                         (SELECT picture FROM pictures p 
                         WHERE p.idAnnouncement = a.idAnnouncement 
-                        AND p.isMainPicture IS TRUE) picture,            
-                    u.idUser, u.userLogo, u.login
+                        AND p.isMainPicture IS TRUE) picture,
 
-                    FROM rent r
+                        IF((a.idUser = '$idUser'), 1, 0) isIncoming,
+                        u.idUser, u.userLogo, u.login 
 
-                    INNER JOIN announcements a ON a.idAnnouncement = r.idAnnouncement
-                    INNER JOIN users u ON a.idUser = u.idUser
+                        FROM rent r                    
 
-                    WHERE isProposals IS FALSE
-                    AND a.idUser = '$idUser' OR r.idUser = '$idUser'
-                    AND r.idRent < '$idRent'
+                        INNER JOIN announcements a ON a.idAnnouncement = r.idAnnouncement
+                        INNER JOIN users u ON (u.idUser = r.idUser AND a.idUser = '$idUser') OR
+                                    (u.idUser = a.idUser AND r.idUser = '$idUser')
 
-                    ORDER BY r.idRent DESC
-                    LIMIT $limitItemInPage";
+                        WHERE (r.isProposals IS FALSE AND r.isClosed IS FALSE)
+                        AND (a.idUser = '$idUser' OR r.idUser = '$idUser')
+                        AND r.idRent < '$idRent'
+
+                        ORDER BY r.idRent DESC
+                        LIMIT $limitItemInPage";
     } else if ($idRent == 0) {
         $loadProposals = "SELECT r.idRent, r.idAnnouncement, r.rentalStart, r.rentalEnd, 
                         r.created, r.updated, r.isClosed,
                         (SELECT picture FROM pictures p 
                         WHERE p.idAnnouncement = a.idAnnouncement 
-                        AND p.isMainPicture IS TRUE) picture,            
-                    u.idUser, u.userLogo, u.login
+                        AND p.isMainPicture IS TRUE) picture,
 
-                    FROM rent r
+                        IF((a.idUser = '$idUser'), 1, 0) isIncoming,
+                        u.idUser, u.userLogo, u.login 
 
-                    INNER JOIN announcements a ON a.idAnnouncement = r.idAnnouncement
-                    INNER JOIN users u ON a.idUser = u.idUser
+                        FROM rent r                    
 
-                    WHERE (r.isProposals IS FALSE)
-                    AND a.idUser = '$idUser' OR r.idUser = '$idUser'
+                        INNER JOIN announcements a ON a.idAnnouncement = r.idAnnouncement
+                        INNER JOIN users u ON (u.idUser = r.idUser AND a.idUser = '$idUser') OR
+                                    (u.idUser = a.idUser AND r.idUser = '$idUser')
 
-                    ORDER BY r.idRent DESC
-                    LIMIT $limitItemInPage";
+                        WHERE (r.isProposals IS FALSE AND r.isClosed IS FALSE)
+                        AND (a.idUser = '$idUser' OR r.idUser = '$idUser')
+
+                        ORDER BY r.idRent DESC
+                        LIMIT $limitItemInPage";
     }
 
     $result['response'] = array();
