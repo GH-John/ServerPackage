@@ -126,9 +126,11 @@ io.on('connection', function (socket) {
         insertMessage(idChat, userToken, idUser_To, content).then(response => {
             var message;
 
-            if (response == SUCCESS) {
+            if (response != UNSUCCESS) {
                 message = {
+                    idMessage: response,
                     message: content,
+                    codeHandler: SUCCESS,
                 };
 
                 getRoom(userToken, idUser_To).then(
@@ -150,6 +152,7 @@ io.on('connection', function (socket) {
 
                             socket.emit('onError', onError);
                         } else {
+                            socket.emit('sendMessageResponse', JSON.stringify(message));
                             socket.to(`${room.room}`).emit('updateChat', JSON.stringify(message));
                         }
                     }
@@ -170,7 +173,7 @@ io.on('connection', function (socket) {
                     message: content,
                     codeHandler: response
                 };
-                socket.emit('sendMessageError', message);
+                socket.emit('sendMessageResponse', message);
             }
         },
             error => {
@@ -181,7 +184,7 @@ io.on('connection', function (socket) {
                 };
 
                 console.error(error.message);
-                socket.emit('sendMessageError', message);
+                socket.emit('sendMessageResponse', message);
             });
     });
 
@@ -320,7 +323,7 @@ function insertMessage(idChat, userToken, idUser_To, message) {
                     response => {
                         if (response.affectedRows > 0) {
                             console.log("SUCCESS");
-                            return SUCCESS;
+                            return response.insertId;
                         } else {
                             console.log("UNSUCCESS");
                             return UNSUCCESS;
