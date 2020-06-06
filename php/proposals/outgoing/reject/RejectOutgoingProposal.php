@@ -6,7 +6,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $idRent = filter_var(trim($_POST['idRent']), FILTER_SANITIZE_STRING);
 
     $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
-    $isProposalExist = getRow($connect, 'isExist', "SELECT EXISTS(SELECT idRent FROM rent WHERE idRent = '$idRent' AND idUser = '$idUser') isExist");
+    $isProposalExist = getRow($connect, 'isExist', "SELECT EXISTS(SELECT idRent FROM rent 
+                                                    WHERE idRent = '$idRent' AND idUser = '$idUser') isExist");
 
     $rejectProposal = "DELETE FROM rent WHERE idRent = '$idRent' AND idUser = '$idUser'";
 

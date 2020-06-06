@@ -4,6 +4,7 @@ CREATE DATABASE ArendaApp;
 USE ArendaApp;
 
 #RENAME TABLE old_name to new_name;
+#ALTER TABLE table_name RENAME COLUMN old_col_name TO new_col_name;
 
 set session group_concat_max_len = 8000;
 
@@ -177,6 +178,7 @@ CREATE TABLE rent(
 	rentalEnd DATETIME NOT NULL,
     
     isProposals BOOLEAN DEFAULT TRUE,
+    isActive BOOLEAN DEFAULT FALSE,
     isClosed BOOLEAN DEFAULT FALSE,
     
     created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

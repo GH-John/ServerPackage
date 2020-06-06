@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($idRent > 0) {
         $loadProposals = "SELECT r.idRent, r.idAnnouncement, r.rentalStart, r.rentalEnd, 
-                        r.created, r.updated, 
+                        r.created, r.updated,
                         (SELECT picture FROM pictures p 
                         WHERE p.idAnnouncement = a.idAnnouncement 
                         AND p.isMainPicture IS TRUE) picture,
@@ -21,13 +21,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         IF((a.idUser = '$idUser'), 1, 0) typeProposal,
                         u.idUser, u.userLogo, u.login 
 
-                        FROM rent r                    
+                        FROM rent r
 
                         INNER JOIN announcements a ON a.idAnnouncement = r.idAnnouncement
                         INNER JOIN users u ON (u.idUser = r.idUser AND a.idUser = '$idUser') OR
                                     (u.idUser = a.idUser AND r.idUser = '$idUser')
 
-                        WHERE (r.isProposal IS FALSE AND r.isClosed IS FALSE AND r.isActive IS TRUE)
+                        WHERE (r.isProposal IS FALSE AND r.isClosed IS FALSE AND r.isActive IS FALSE)
                         AND (a.idUser = '$idUser' OR r.idUser = '$idUser')
                         AND r.idRent < '$idRent'
 
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         LIMIT $limitItemInPage";
     } else if ($idRent == 0) {
         $loadProposals = "SELECT r.idRent, r.idAnnouncement, r.rentalStart, r.rentalEnd, 
-                        r.created, r.updated, 
+                        r.created, r.updated,
                         (SELECT picture FROM pictures p 
                         WHERE p.idAnnouncement = a.idAnnouncement 
                         AND p.isMainPicture IS TRUE) picture,
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         INNER JOIN users u ON (u.idUser = r.idUser AND a.idUser = '$idUser') OR
                                     (u.idUser = a.idUser AND r.idUser = '$idUser')
 
-                        WHERE (r.isProposal IS FALSE AND r.isClosed IS FALSE AND r.isActive IS TRUE)
+                        WHERE (r.isProposal IS FALSE AND r.isClosed IS FALSE AND r.isActive IS FALSE)
                         AND (a.idUser = '$idUser' OR r.idUser = '$idUser')
 
                         ORDER BY r.idRent DESC

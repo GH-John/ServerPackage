@@ -12,31 +12,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
 
     if ($idRent > 0) {
-        $loadProposals = "SELECT r.idRent, r.idAnnouncement, r.rentalStart, r.rentalEnd, r.created, r.updated, r.isClosed,
-                        (SELECT picture FROM pictures p 
-                        WHERE p.idAnnouncement = a.idAnnouncement 
-                        AND p.isMainPicture IS TRUE) picture,            
-                        u.idUser, u.userLogo, u.login
-
-                        FROM rent r
-
-                        INNER JOIN announcements a ON a.idAnnouncement = r.idAnnouncement
-                        INNER JOIN users u ON a.idUser = u.idUser
-
-                        WHERE isClosed IS TRUE
-                        AND a.idUser = '$idUser' OR r.idUser = '$idUser'
-                        AND r.idRent < '$idRent'
-
-                        ORDER BY r.idRent DESC
-                        LIMIT $limitItemInPage";
-    } else if ($idRent == 0) {
         $loadProposals = "SELECT r.idRent, r.idAnnouncement, r.rentalStart, r.rentalEnd, 
-                        r.created, r.updated, r.isClosed,
+                        r.created, r.updated,
                         (SELECT picture FROM pictures p 
                         WHERE p.idAnnouncement = a.idAnnouncement 
                         AND p.isMainPicture IS TRUE) picture,
 
-                        IF((a.idUser = '$idUser'), 1, 0) isIncoming,
+                        IF((a.idUser = '$idUser'), 1, 0) typeProposal,
                         u.idUser, u.userLogo, u.login 
 
                         FROM rent r
@@ -48,6 +30,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         WHERE (r.isClosed IS TRUE)
                         AND (a.idUser = '$idUser' OR r.idUser = '$idUser')
                         AND r.idRent < '$idRent'
+
+                        ORDER BY r.idRent DESC
+                        LIMIT $limitItemInPage";
+    } else if ($idRent == 0) {
+        $loadProposals = "SELECT r.idRent, r.idAnnouncement, r.rentalStart, r.rentalEnd, 
+                        r.created, r.updated,
+                        (SELECT picture FROM pictures p 
+                        WHERE p.idAnnouncement = a.idAnnouncement 
+                        AND p.isMainPicture IS TRUE) picture,
+
+                        IF((a.idUser = '$idUser'), 1, 0) typeProposal,
+                        u.idUser, u.userLogo, u.login 
+
+                        FROM rent r
+
+                        INNER JOIN announcements a ON a.idAnnouncement = r.idAnnouncement
+                        INNER JOIN users u ON (u.idUser = r.idUser AND a.idUser = '$idUser') OR
+                                    (u.idUser = a.idUser AND r.idUser = '$idUser')
+
+                        WHERE (r.isClosed IS TRUE)
+                        AND (a.idUser = '$idUser' OR r.idUser = '$idUser')
 
                         ORDER BY r.idRent DESC
                         LIMIT $limitItemInPage";

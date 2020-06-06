@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $acceptProposal = "UPDATE rent r INNER JOIN announcements a ON r.idAnnouncement = a.idAnnouncement 
                         SET isProposal = FALSE
+                            isActive = TRUE
                         WHERE r.idRent = '$idRent' AND a.idUser = '$idUser'";
 
     $result['response'] = array();

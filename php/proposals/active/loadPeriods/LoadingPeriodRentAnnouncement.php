@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     DATE_FORMAT(rentalEnd, '%k:%i') AS 'timeEnd'
 
     FROM rent 
-    WHERE idAnnouncement = '$idAnnouncement' AND isProposals IS FALSE";
+    WHERE idAnnouncement = '$idAnnouncement' AND isProposal IS FALSE";
 
     $response = mysqli_query($connect, $loadRentDates);
 
