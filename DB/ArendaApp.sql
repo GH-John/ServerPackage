@@ -177,7 +177,7 @@ CREATE TABLE rent(
     rentalStart DATETIME NOT NULL,
 	rentalEnd DATETIME NOT NULL,
     
-    isProposals BOOLEAN DEFAULT TRUE,
+    isProposal BOOLEAN DEFAULT TRUE,
     isActive BOOLEAN DEFAULT FALSE,
     isClosed BOOLEAN DEFAULT FALSE,
     
@@ -192,9 +192,9 @@ create trigger event_after_update_rent after update on rent for each row
         declare status BOOLEAN;
         
         set nof = new.idAnnouncement;
-        set status = new.isProposals;
+        set status = new.isActive;
         
-        if(status is false) then
+        if(status is true) then
 			update announcements set countRent = countRent + 1 where idAnnouncement = nof;
 			update announcements set statusRent = true where idAnnouncement = nof;
         end if;

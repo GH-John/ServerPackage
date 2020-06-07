@@ -7,13 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
     $isProposalExist = getRow($connect, 'isExist', "SELECT EXISTS(SELECT idRent FROM rent r 
-                                                    INNER JOIN announcements a ON r.idAnnouncement = a.idAnnouncement 
-                                                    WHERE r.idRent = '$idRent' AND a.idUser = '$idUser') isExist");
+                                                    WHERE r.idRent = '$idRent') isExist");
 
-    $acceptProposal = "UPDATE rent r INNER JOIN announcements a ON r.idAnnouncement = a.idAnnouncement 
-                        SET isProposal = FALSE
+    $acceptProposal = "UPDATE rent r SET isProposal = FALSE,
                             isActive = TRUE
-                        WHERE r.idRent = '$idRent' AND a.idUser = '$idUser'";
+                        WHERE r.idRent = '$idRent'";
 
     $result['response'] = array();
 
