@@ -90,9 +90,7 @@ CREATE TABLE announcements(
     address VARCHAR(100) NOT NULL,
     
     phone_1 VARCHAR(25),
-    
 	phone_2 VARCHAR(25),
-    
     phone_3 VARCHAR(25),
     
     withSale BOOLEAN NOT NULL DEFAULT FALSE,
@@ -190,13 +188,19 @@ create trigger event_after_update_rent after update on rent for each row
 	begin
 		declare nof BIGINT; 
         declare status BOOLEAN;
+        declare statusClosed BOOLEAN;
         
         set nof = new.idAnnouncement;
         set status = new.isActive;
+        set statusClosed = new.isClosed;
         
         if(status is true) then
 			update announcements set countRent = countRent + 1 where idAnnouncement = nof;
 			update announcements set statusRent = true where idAnnouncement = nof;
+        end if;
+        
+        if(statusClosed is true) then		
+			update announcements set statusRent = false where idAnnouncement = nof;
         end if;
 	end //
 DELIMITER ;

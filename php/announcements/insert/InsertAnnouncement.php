@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $returnTimeWith = filter_var(trim($_POST['returnTimeWith']), FILTER_SANITIZE_STRING);
     $returnTimeBy = filter_var(trim($_POST['returnTimeBy']), FILTER_SANITIZE_STRING);
 
-    $withSale = (bool) filter_var(trim($_POST['withSale']), FILTER_SANITIZE_STRING);
+    $withSale = convert_to_bool(filter_var(trim($_POST['withSale']), FILTER_SANITIZE_STRING));
 
     $nameMainPicture = filter_var(trim($_POST['nameMainPicture']), FILTER_SANITIZE_STRING);
 

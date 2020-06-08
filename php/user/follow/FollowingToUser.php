@@ -4,7 +4,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $token = filter_var(trim($_POST['token']), FILTER_SANITIZE_STRING);
     $idUser = filter_var(trim($_POST['idUser']), FILTER_SANITIZE_STRING);
-    $isFollow = (bool) filter_var(trim($_POST['isFollow']), FILTER_SANITIZE_STRING);
+
+    $result['isFollowBefore'] = filter_var(trim($_POST['isFollow']), FILTER_SANITIZE_STRING);
+    $isFollow = convert_to_bool(filter_var(trim($_POST['isFollow']), FILTER_SANITIZE_STRING));
+    $result['isFollowAfter'] = $isFollow;
 
     $idUserFollower = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
 
