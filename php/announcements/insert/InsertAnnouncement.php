@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $returnTimeWith = filter_var(trim($_POST['returnTimeWith']), FILTER_SANITIZE_STRING);
     $returnTimeBy = filter_var(trim($_POST['returnTimeBy']), FILTER_SANITIZE_STRING);
 
-    $withSale = convert_to_bool(filter_var(trim($_POST['withSale']), FILTER_SANITIZE_STRING));
+    $withSale = filter_var(trim($_POST['withSale']), FILTER_VALIDATE_BOOLEAN) === 'true' ? 1 : 0;
 
     $nameMainPicture = filter_var(trim($_POST['nameMainPicture']), FILTER_SANITIZE_STRING);
 
@@ -56,10 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($connect) {
 
         $idUser = getRow($connect, 'idUser', "SELECT idUser FROM users WHERE token = '$token'");
-
-        $result['code_ph'] = $_POST['phone_1'];
-        $result['code_phone_1'] = $phone_1;
-        $result['code_token'] = $token;
 
         if ($idUser) {
             $request = "INSERT INTO announcements (
