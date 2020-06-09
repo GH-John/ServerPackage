@@ -715,6 +715,97 @@ INSERT INTO rent(idUser, idAnnouncement, rentalStart, rentalEnd) VALUES
 -- UPDATE rent SET isProposals = false WHERE idUser = 3;
 -- UPDATE rent SET isProposals = false WHERE idUser = 4;
     
+    insert into users (token, name, lastName, login, email, password, phone_1, address_1, userLogo) values
+    ("token_1", "Артем", "Кошарнов", "arutomu", "artem@gmail.com", "123456", "+375(44)981-77-09", "Minsk", 
+		"https://sun9-18.userapi.com/c847018/v847018927/131fbf/WamFWrClUH8.jpg"),
+	("token_2", "Лера", "Шкундич", "lerka", "lerka@gmail.com", "123456", "+375(44)798-97-19", "Minsk", 
+		"https://sun2.cosmostv-by-minsk.userapi.com/36ZTgdA6fQZV96rj8icTXHSAcsdghvQ-XEhqdw/OPVnaR6fOsA.jpg"),
+	("token_3", "Даник", "Мозолевский", "danya", "danya@gmail.com", "123456", "+375(44)109-07-59", "Minsk", 
+		"https://sun9-16.userapi.com/c847124/v847124365/83bdd/kPdJ2UmAheQ.jpg"),
+	("token_4", "Никита", "Девочко", "nikitos", "nikitos@gmail.com", "123456", "+375(29)631-90-43", "Minsk", 
+		"https://sun9-41.userapi.com/c857732/v857732396/4f0c2/ci-6DN0Q7og.jpg");
+    
+    INSERT INTO announcements(idUser, idSubcategory, name, description, hourlyCost, address, phone_1, lifeCicle) VALUES
+    (1, 13, "Nissan Skyline GT-R", 
+"В отличном техническом и косметическом состоянии! Подробности по телефону!
+
+Двигатель:
+Поршневая Mahle
+Шатуны Eagle
+Вкладыши ACL
+Валы Tomei
+Выпускной коллектор Shabanov brother
+Выхлоп Blitz spec nur
+Турбина Garret GTX gen2 3576
+Вестгейт Tial
+Радиатор Koyorad
+Форсунки injector dynamics 1000
+
+МКПП Getrag6
+сцепление HKS двухдисковая органика
+Топливная система:
+Топливные насосы Walbro 540 2 штуки
+Топливная рейка Radium
+Топливный регулятор Radium
+Топливная трасса AN10
+
+Ходовая часть:
+Все рычаги Cusco, кроме нижних передних (оригинал GTR)
+Стойки оригинал GTR, в придачу Cusco
+
+Мозги Link Fury, ШЛЗ, Flexfuel sensor", 10.5, "", "+375(44)981-77-09", now()),
+	(2, 2, "Коттеджи в 'Робинсон Клуб'", "Робинсон Клуб предлагает новый формат отдыха для своих гостей - VIP отдых в новых коттеджах 'Равенна' и 'Модена'. 
+    Это идеальный вариант для тех, кто привык получать всё и сразу! 
+    Два зеркальных коттеджа премиум-класса спроектированы таким образом, 
+    чтобы гости получили максимум удовольствия от проживания или проведения мероприятий. 
+    Кроме того, гости могут снять как коттедж целиком ( и остаться переночевать), 
+    так и отдельно его части: банкетный зал или застекленную террасу.", 18.75, "побережье Минского моря", "+375(44)798-97-19", now()),
+    (3, 52, "Шлем виртуальной реальности HTC Vive", "Шлем виртуальной реальности для компьютера. Предназначен для игр, приложений, просмотра фотографий и фильмов в 3D. 
+    Экран с разрешением 2160х1200. Частота обновления кадров 90 Гц. Угол обзора 110°. Датчики: акселерометр, гироскоп, магнитометр. 
+    Интерфейсы подключения: порт USB 2.0, HDMI 1.4 или DisplayPort 1.2.", 2.5, "", "+375(44)109-07-59", now()),
+    (4, 16, "Honda VFR800 VTEC", "Год выпуска - 2004
+Объем двигателя – 800 куб.см
+Тип мотоцикла - спорт-турист
+Тип двигателя - 4-цилиндровый, 4-тактный, V-образный
+Мощность двигателя – 106 л.с.
+Контроль топлива – Инжектор
+Коробка передач – 6-ступенчатая
+Тип привода – Цепь
+Максимальная скорость – 230 км/ч", 7.6, "", "+375(29)631-90-43", now());
+    
+
+INSERT INTO pictures(idAnnouncement, picture, isMainPicture) VALUES
+	(1, "https://s.auto.drom.ru/i24246/s/photos/38391/38390592/gen600_520881416.jpg", true),
+	(1, "https://s.auto.drom.ru/i24246/s/photos/38391/38390592/gen600_520880216.jpg", false),
+	(1, "https://s.auto.drom.ru/i24246/s/photos/38391/38390592/gen600_520880347.jpg", false),
+	(1, "https://s.auto.drom.ru/i24246/s/photos/38391/38390592/gen600_520880533.jpg", false),
+	(1, "https://s.auto.drom.ru/i24246/s/photos/38391/38390592/gen600_520880748.jpg", false),
+	(1, "https://s.auto.drom.ru/i24246/s/photos/38391/38390592/gen600_520880596.jpg", false),
+	(1, "https://s.auto.drom.ru/i24246/s/photos/38391/38390592/gen600_520880638.jpg", false),
+    
+	(2, "https://static.realt.by/user/j8/v/r2002e3w5vj8/1a5f58c185.jpg?1498478797", true),
+	(2, "https://static.realt.by/user/j8/v/r2002e3w5vj8/7758f2b181.jpg?1498478868", false),
+	(2, "https://static.realt.by/user/j8/v/r2002e3w5vj8/8757cdb8bf.jpg?1498478870", false),
+	(2, "https://static.realt.by/user/j8/v/r2002e3w5vj8/2e443ebb66.jpg?1498478871", false),
+	(2, "https://static.realt.by/user/j8/v/r2002e3w5vj8/086ef84a84.jpg?1498478873", false),
+	(2, "https://static.realt.by/user/j8/v/r2002e3w5vj8/e9681c2016.jpg?1498478874", false),
+	(2, "https://static.realt.by/user/j8/v/r2002e3w5vj8/9d1610a138.jpg?1498478919", false),
+	(2, "https://static.realt.by/user/j8/v/r2002e3w5vj8/ae4bce4e45.jpg?1498480188", false),
+    
+	(3, "https://shop.by/images/htc_vive_1.jpg", true),
+	(3, "https://shop.by/images/htc_vive_2.jpg", false),
+	(3, "https://shop.by/images/htc_vive_3.jpg", false),
+	(3, "https://shop.by/images/htc_vive_5.jpg", false),
+	(3, "https://shop.by/images/htc_vive_4.jpg", false),
+    
+	(4, "https://static.tildacdn.com/tild3037-6639-4339-a561-633930613262/6.jpg", true),
+	(4, "https://static.tildacdn.com/tild3231-6437-4566-b239-666266626666/7.jpg", false),
+	(4, "https://static.tildacdn.com/tild3765-3631-4263-b966-303033326331/2.jpg", false),
+	(4, "https://static.tildacdn.com/tild3137-3632-4730-a436-376139356661/3.jpg", false);
+    
+	
+    
+    
     insert into followers(idUser, idUserFollower) values
     (1, 2),
     (1, 3),
